@@ -27,4 +27,4 @@ git add .
 ```bash
 git commit -m "message"
 ```
-3. Push to GitHub -> ```bash git push (then "git push upstream...")```
+3. Push to GitHub 

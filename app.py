@@ -1,19 +1,8 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
+
+import json
 
 app = Flask(__name__)
-
-
-# home page
-@app.route("/")  # HOF
-def hello_world():
-    return "<h1>Super, Cool 😁</h1>"
-
-
-# /about page
-@app.route("/about")
-def about():
-    return "<h1>About</h1>"
-
 
 movies = [
     {
@@ -107,7 +96,51 @@ movies = [
 ]
 
 
-# /movies -> JSON
+# home page
+@app.route("/")  # HOF
+def hello_world():
+    return "<h1>Super, Cool 😁</h1>"
+
+
+users = [
+    {
+        "name": "Dhara",
+        "pic": "https://play-lh.googleusercontent.com/LeX880ebGwSM8Ai_zukSE83vLsyUEUePcPVsMJr2p8H3TUYwNg-2J_dVMdaVhfv1cHg",
+        "pro": True,
+    },
+    {
+        "name": "Gwen",
+        "pic": "https://preview.redd.it/tt7kh1z7hpf91.png?auto=webp&s=28df0a3a48f989b5337a1d54ba9431065299197c",
+        "pro": False,
+    },
+    {
+        "name": "Shego",
+        "pic": "https://w0.peakpx.com/wallpaper/828/185/HD-wallpaper-shego-kim.jpg",
+        "pro": True,
+    },
+]
+
+
+# /about page
+@app.route("/about")
+def about_page():
+    return render_template("about.html", users=users)
+
+
+name = "Caleb"
+hobbies = ["Gaming", "Reading", "Soccer", "Ballet", "Gyming"]
+
+
+# /profile page
+@app.route("/profile")
+def profile_page():
+    return render_template("profile.html", name=name, hobbies=hobbies)
+
+
+# /dashboard page
+@app.route("/dashboard")
+def dashboard_page():
+    return render_template("dashboard.html", movies=movies)
 
 
 # GET -> movies page -> JSON
@@ -202,16 +235,27 @@ def delete_movie(id):
 @app.put("/movies/<id>")
 def update_movie(id):
     update_data = request.json
+    # this references the specific memory location and therefore when you change it, it changes it inplace
+    # does not make a copy of memory to save memory and improve performance
     specific_movie = next(
-        (movie for movie in movies if int(movie["id"]) == int(id)), None
+        (movie for movie in movies if int(movie["id"]) == int(id)), None  # same memory
     )
     if specific_movie is None:
         result = {"message": "movie not foumd"}
         return jsonify(result), 404
     # update all values in "specific_movie" with values from "update_data" dictionary
-    # it changes in place
+    # it changes in place!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     specific_movie.update(update_data)
     print(specific_movie)
+    # print(movies)
+
+    # or
+    # movie_idx = next(
+    # (idx for idx, movie in enumerate(movies) if movie["id"] == id), None
+    # )
+    # print(movies[movie_idx])
+    # or movies[movie_idx].update(update_data)
+    # movies[movie_idx] = {**movies[movie_idx], **update_data}
     # print(movies)
 
     result = {"messsage": "movie successfully updated", "data": specific_movie}

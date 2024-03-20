@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .dsahboard {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .movie-container {
+            place-content: center;
+        }
+        .picture {
+            border-radius: 12px;
+            height: 300px;
+            width: 200px;
+            object-fit: cover;
+        }
+        .movie-header {
+            display: flex;
+        }
+        .title {
+            text-align: left;
+        }
+        .rating {
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class = "dashboard">
+        {%for movie in movies%}
+        <div class="movie-container">
+            <img class = "picture" src="{{movie['poster']}}" alt="movieposter">
+            <div class = "movie-header">
+                <p class = "title">{{movie['name']}}</p>
+                <p class = "rating"><i class="fa-solid fa-star"></i> 
+                    {{movie['rating']}}
+                </p>
+            </div>
+            <p>{{movie['summary']}}</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

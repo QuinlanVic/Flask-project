@@ -53,3 +53,9 @@ flask run
 ```sh
 flask run --debug
 ```
+
+## Environment
+Activate environment ->
+```bash
+.\myenv\Scripts\Activate.ps1
+```

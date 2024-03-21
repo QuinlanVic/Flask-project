@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, render_template
 
 import json
 
+# create an instance of the 'Flask' class
 app = Flask(__name__)
 
 movies = [
@@ -146,7 +147,7 @@ def dashboard_page():
 # GET -> movies page -> JSON
 @app.get("/movies")
 def get_movies():
-    # have to convert to JSON (using jsonify using library from Flask)
+    # have to convert to JSON (using jsonify library from Flask)
     return jsonify(movies)
 
 
@@ -179,7 +180,7 @@ def create_movie():
 # <variable_name> -> becomes the keyword argument to "get_specific_movie"
 @app.get("/movies/<id>")
 def get_specific_movie(id):
-    print(type(id))
+    print(type(id))  # string
     # specific_movie = [movie for movie in movies if int(movie["id"]) == int(id)]
 
     # or - generator expression + have to account for when nothing is found (default val = None)

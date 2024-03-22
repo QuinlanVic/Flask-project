@@ -6,8 +6,9 @@ python -m venv myenv
 ```
 
 ## Activate Environment
+(powershell)
 ```sh
-.\myenv\Scripts\Activate.ps1 (powershell)
+.\myenv\Scripts\Activate.ps1 
 ```
 
 ## Git

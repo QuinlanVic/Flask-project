@@ -144,6 +144,12 @@ def dashboard_page():
     return render_template("dashboard.html", movies=movies)
 
 
+# movies list
+@app.route("/movies-list")
+def movie_list_page():
+    return render_template("movies-list.html", movies=movies)
+
+
 # GET -> movies page -> JSON
 @app.get("/movies")
 def get_movies():

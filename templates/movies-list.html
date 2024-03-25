@@ -6,7 +6,7 @@
     <title>Document</title>
     <style>
         .movie-container {
-            background: orange;
+            /* background: orange; */
             /* set width same as poster so all together */
             /* by default takes up entire space of container as div is a block element by default */
             width: 300px;
@@ -20,6 +20,21 @@
             height: 540px; 
             width: 100%;
             object-fit: cover; 
+            border-radius: 24px;
+            /* box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px; */
+            /* box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px; */
+            box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+        }
+        .movie-name {
+            margin: 0px
+        }
+        .movie-list-container {
+            display: flex;
+            /* always keeps the gap */
+            gap: 16px;
+            /* space inbetween the elements */
+            justify-content: space-around;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -32,15 +47,37 @@
         "summary": "Members of a black ops team must track and eliminate a gang of masked murderers.",
         "trailer": "https://www.youtube.com/embed/OKBMCL-frPU",
     } -->
-    <div class="movie-container">
-        <img class= "movie-poster" src="https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg" alt="">
-        <div class="movie-spec">
-            <h2>Vikram</h2>
-            <p>⭐ 8.4</p>
+    <div class="movie-list-container">
+        <div class="movie-container">
+            <img class= "movie-poster" src="https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg" alt="">
+            <div class="movie-spec">
+                <h2 class="movie-name">Vikram</h2>
+                <p>⭐ 8.4</p>
+            </div>
+            <p>
+                Members of a black ops team must track and eliminate a gang of masked murderers.
+            </p>
         </div>
-    <p>
-        Members of a black ops team must track and eliminate a gang of masked murderers.
-    </p>
+        <div class="movie-container">
+            <img class= "movie-poster" src="https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg" alt="">
+            <div class="movie-spec">
+                <h2 class="movie-name">Vikram</h2>
+                <p>⭐ 8.4</p>
+            </div>
+            <p>
+                Members of a black ops team must track and eliminate a gang of masked murderers.
+            </p>
+        </div>
+        <div class="movie-container">
+            <img class= "movie-poster" src="https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg" alt="">
+            <div class="movie-spec">
+                <h2 class="movie-name">Vikram</h2>
+                <p>⭐ 8.4</p>
+            </div>
+            <p>
+                Members of a black ops team must track and eliminate a gang of masked murderers.
+            </p>
+        </div>
     </div>
 </body>
 </html>

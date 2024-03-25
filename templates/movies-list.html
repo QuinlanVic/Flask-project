@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .movie-container {
+            background: orange;
+            /* set width same as poster so all together */
+            /* by default takes up entire space of container as div is a block element by default */
+            width: 300px;
+        }
+        .movie-spec {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .movie-poster {
+            height: 540px; 
+            width: 100%;
+            object-fit: cover; 
+        }
+    </style>
+</head>
+<body>
+    <!-- {
+        "id": "99",
+        "name": "Vikram",
+        "poster": "https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg",
+        "rating": 8.4,
+        "summary": "Members of a black ops team must track and eliminate a gang of masked murderers.",
+        "trailer": "https://www.youtube.com/embed/OKBMCL-frPU",
+    } -->
+    <div class="movie-container">
+        <img class= "movie-poster" src="https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg" alt="">
+        <div class="movie-spec">
+            <h2>Vikram</h2>
+            <p>⭐ 8.4</p>
+        </div>
+    <p>
+        Members of a black ops team must track and eliminate a gang of masked murderers.
+    </p>
+    </div>
+</body>
+</html>

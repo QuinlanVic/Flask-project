@@ -98,7 +98,7 @@ movies = [
 
 
 # home page
-@app.route("/")  # HOF
+@app.route("/")  # HOF (Higher Order Function)
 def hello_world():
     return "<h1>Super, Cool 😁</h1>"
 
@@ -145,9 +145,23 @@ def dashboard_page():
 
 
 # movies list
-@app.route("/movies-list")
+@app.route("/movieslist")
 def movie_list_page():
     return render_template("movies-list.html", movies=movies)
+
+
+# specific movie page
+@app.route("/movieslist/<id>")
+def movie_page(id):
+    # movie = get_specific_movie(id)
+    specific_movie = next((movie for movie in movies if movie["id"] == id), None)
+
+    if specific_movie is None:
+        result = {"message": "movie not found"}
+        return "<h1>Movie not found</h1>"
+
+    # result = {"message": "movie successfully found", "data": specific_movie}
+    return render_template("movie.html", movie=specific_movie)
 
 
 # GET -> movies page -> JSON
@@ -190,9 +204,7 @@ def get_specific_movie(id):
     # specific_movie = [movie for movie in movies if int(movie["id"]) == int(id)]
 
     # or - generator expression + have to account for when nothing is found (default val = None)
-    specific_movie = next(
-        (movie for movie in movies if int(movie["id"]) == int(id)), None
-    )
+    specific_movie = next((movie for movie in movies if movie["id"] == id), None)
     # print(type(specific_movie))
 
     # if specific_movie == []:

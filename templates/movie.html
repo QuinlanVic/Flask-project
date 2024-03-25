@@ -9,7 +9,14 @@
             /* background: orange; */
             /* set width same as poster so all together */
             /* by default takes up entire space of container as div is a block element by default */
-            width: 300px;
+            /* width: 300px; */
+            font-family: sans-serif;
+        }
+        .movie-trailer {
+            width: 100%;
+        }
+        .movie-detail {
+            width: 75%;
         }
         .movie-spec {
             display: flex;
@@ -28,14 +35,14 @@
         .movie-name {
             margin: 0px
         }
-        .movie-list-container {
+        /* .movie-list-container {
             display: flex;
-            /* always keeps the gap */
+            always keeps the gap
             gap: 16px;
-            /* space inbetween the elements */
+            space inbetween the elements
             justify-content: space-around;
             flex-wrap: wrap;
-        }
+        } */
     </style>
 </head>
 <body>
@@ -47,17 +54,18 @@
         "summary": "Members of a black ops team must track and eliminate a gang of masked murderers.",
         "trailer": "https://www.youtube.com/embed/OKBMCL-frPU",
     } -->
-    <div class="movie-list-container">
-        {% for movie in movies %}
-        <div class="movie-container">
-            <img class= "movie-poster" src="{{movie['poster']}}" alt="{{movie['name']}}">
+    <!-- {{movie}} -->
+
+    <div class="movie-container">
+        <!-- <img class= "movie-poster" src="{{movie['poster']}}" alt="{{movie['name']}}"> -->
+        <iframe width="1280" height="720" class="movie-trailer" src="{{movie['trailer']}}"></iframe>
+        <div class="movie-detail">
             <div class="movie-spec">
                 <h2 class="movie-name">{{movie["name"]}}</h2>
-                <p>⭐ {{movie["rating"]}}</p>
+                <p>⭐ <span style="color: red">{{movie["rating"]}}</span></p>
             </div>
             <p>{{movie["summary"]}}</p>
         </div>
-        {% endfor %}
     </div>
 </body>
 </html>

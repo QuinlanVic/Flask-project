@@ -138,10 +138,10 @@ def profile_page():
     return render_template("profile.html", name=name, hobbies=hobbies)
 
 
-# /dashboard page
-@app.route("/dashboard")
-def dashboard_page():
-    return render_template("dashboard.html", movies=movies)
+# /dashboard page (OLD)
+# @app.route("/dashboard2")
+# def dashboard_page2():
+#     return render_template("dashboard2.html", movies=movies)
 
 
 # movies list
@@ -162,6 +162,56 @@ def movie_page(id):
 
     # result = {"message": "movie successfully found", "data": specific_movie}
     return render_template("movie.html", movie=specific_movie)
+
+
+@app.route("/login", methods=["GET"])  # HOF
+def login_page():
+    return render_template("forms.html")
+
+
+@app.route("/dashboard", methods=["POST"])  # HOF
+def dashboard_page():
+    # have to get values from form via keys
+    username = request.form.get("username")
+    password = request.form.get("password")
+    print("Dashboard page", username, password)
+    return f"<h1>Hi {username}, welcome to our Movies App 🙂</h1>"
+
+
+# Task - /movies/add -> Add movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
+@app.route("/movies/add")
+def add_movie_page():
+    return render_template("addmovie.html")
+
+
+@app.route("/movieslist", methods=["POST"])
+def new_movie_list():
+    movie_name = request.form.get("name")
+    movie_poster = request.form.get("poster")
+    movie_rating = request.form.get("rating")
+    movie_summary = request.form.get("summary")
+    movie_trailer = request.form.get("trailer")
+    newmovie = {
+        "name": movie_name,
+        "poster": movie_poster,
+        "rating": float(movie_rating),
+        "summary": movie_summary,
+        "trailer": movie_trailer,
+    }
+    movie_ids = [int(movie["id"]) for movie in movies]
+    max_id = max(movie_ids)
+    print(max_id)
+    # or
+    newmovie["id"] = str(max_id + 1)
+    movies.append(newmovie)
+    return render_template("movies-list.html", movies=movies)
+
+
+# Spider-Man 2
+# https://m.media-amazon.com/images/M/MV5BMzY2ODk4NmUtOTVmNi00ZTdkLTlmOWYtMmE2OWVhNTU2OTVkXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_.jpg
+# 7.5
+# Peter Parker is beset with troubles in his failing personal life as he battles a former brilliant scientist named Otto Octavius.
+# https://www.imdb.com/video/vi629801241/?playlistId=tt0316654&ref_=tt_pr_ov_vi
 
 
 # GET -> movies page -> JSON

@@ -102,6 +102,27 @@ def movie_page(id):
     return render_template("movie.html", movie=specific_movie.to_dict())
 
 
+# Task 4 | db.session.delete(movie)
+# create delete API for movies
+@app.delete("/movies/<id>")
+def delete_movie(id):
+    # or - generator expression + have to account for when nothing is found (default val = None)
+    # stops when you've found the first match (doesn't loop through whole list) = increased performance
+    # movie_del = next((movie for movie in movies if int(movie["id"]) == int(id)), None)
+    movie_del = Movie.query.get(id)
+
+    # if movie_del == []:
+    if movie_del is None:
+        result = {"message": "movie not found"}
+        return jsonify(result), 404
+
+    # movies.remove(movie_del[0])
+    db.session.delete(movie_del)
+    # result = {"messsage": "movie successfully deleted", "data": movie_del[0]}
+    result = {"messsage": "movie successfully deleted", "data": movie_del.to_dict()}
+    return jsonify(result)
+
+
 # Task 1
 # .all() - .get()
 # <variable_name> -> becomes the keyword argument to "get_specific_movie"
@@ -394,37 +415,37 @@ def create_movie():
 
 
 # create delete API for movies
-@app.delete("/movies/<id>")
-def delete_movie(id):
-    # movie_del = [movie for movie in movies if int(movie["id"]) == int(id)]
+# @app.delete("/movies/<id>")
+# def delete_movie(id):
+# movie_del = [movie for movie in movies if int(movie["id"]) == int(id)]
 
-    # or - generator expression + have to account for when nothing is found (default val = None)
+# or - generator expression + have to account for when nothing is found (default val = None)
 
-    # stops when you've found the first match (doesn't loop through whole list) = increased performance
-    movie_del = next((movie for movie in movies if int(movie["id"]) == int(id)), None)
+# stops when you've found the first match (doesn't loop through whole list) = increased performance
+# movie_del = next((movie for movie in movies if int(movie["id"]) == int(id)), None)
 
-    # if movie_del == []:
-    if movie_del is None:
-        result = {"message": "movie not found"}
-        return jsonify(result), 404
+# if movie_del == []:
+# if movie_del is None:
+# result = {"message": "movie not found"}
+# return jsonify(result), 404
 
-    # movies.remove(movie_del[0])
-    movies.remove(movie_del)
-    # result = {"messsage": "movie successfully deleted", "data": movie_del[0]}
-    result = {"messsage": "movie successfully deleted", "data": movie_del}
-    return jsonify(result)
+# movies.remove(movie_del[0])
+# movies.remove(movie_del)
+# result = {"messsage": "movie successfully deleted", "data": movie_del[0]}
+# result = {"messsage": "movie successfully deleted", "data": movie_del}
+# return jsonify(result)
 
-    # or Ragav's way
-    # if movie_del:
-    #   movies.remove(movie_del)
-    #   return jsonify({"message": "Deleted Successfully"})
-    # else:
-    #   return jsonify("message": "movie not found"), 404
-    # Persmission to modify the lexical scope variable | reassigning is not allowed
-    # global movies
-    # Now you can change the address
-    # movies = [movie for movie in movies if movie["id"] != id]
-    # return jsonify({"message": "Deleted Successfully"})
+# or Ragav's way
+# if movie_del:
+#   movies.remove(movie_del)
+#   return jsonify({"message": "Deleted Successfully"})
+# else:
+#   return jsonify("message": "movie not found"), 404
+# Persmission to modify the lexical scope variable | reassigning is not allowed
+# global movies
+# Now you can change the address
+# movies = [movie for movie in movies if movie["id"] != id]
+# return jsonify({"message": "Deleted Successfully"})
 
 
 @app.put("/movies/<id>")

@@ -6,6 +6,8 @@ from sqlalchemy.sql import text
 import os
 from dotenv import load_dotenv
 from pprint import pprint
+import uuid
+
 import json
 
 # All to keep away private passwords and stuff away from the public via
@@ -49,7 +51,8 @@ except Exception as e:
 # constructor we are using is from "db.Model"
 class Movie(db.Model):
     __tablename__ = "movies"
-    id = db.Column(db.String(50), primary_key=True)
+    # automatically creates and assigned value
+    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(50))
     poster = db.Column(db.String(50))
     rating = db.Column(db.Float(50))
@@ -106,21 +109,104 @@ def movie_page(id):
 # create delete API for movies
 @app.delete("/movies/<id>")
 def delete_movie(id):
-    # or - generator expression + have to account for when nothing is found (default val = None)
-    # stops when you've found the first match (doesn't loop through whole list) = increased performance
-    # movie_del = next((movie for movie in movies if int(movie["id"]) == int(id)), None)
     movie_del = Movie.query.get(id)
-
-    # if movie_del == []:
-    if movie_del is None:
+    if not movie_del:
+        # if we did not find it
         result = {"message": "movie not found"}
         return jsonify(result), 404
+    try:
+        # delete from database (not permanently)
+        db.session.delete(movie_del)
+        db.session.commit()  # making the change permanent (any change i.e., delete or update)
+        result = {"messsage": "movie successfully deleted", "data": movie_del.to_dict()}
+        return jsonify(result)
+    except Exception as e:
+        # roll back changes before changing the data (unless committed already)
+        db.session.rollback()
+        # server error
+        result = {"error": str(e)}
+        return jsonify(result), 500
 
-    # movies.remove(movie_del[0])
-    db.session.delete(movie_del)
-    # result = {"messsage": "movie successfully deleted", "data": movie_del[0]}
-    result = {"messsage": "movie successfully deleted", "data": movie_del.to_dict()}
-    return jsonify(result)
+
+# POST -> request.json -> create movie + add to movies list -> JSON
+# 1 more than the max id
+@app.post("/movies")
+def create_movie():
+    # get new movie JSON data from body in request
+    data = request.json
+    # create a new movie with it, noo id as it is automatically created and asigned
+    new_movie = Movie(
+        name=data["name"],
+        poster=data["poster"],
+        rating=data["rating"],
+        summary=data["summary"],
+        trailer=data["trailer"],
+    )
+    # if keys of Model and keys of data sent from users side are the same then you can use unpacking
+    # risk = if they provide an "id" value it is added (not automatically generated)
+    # definitely a work-around
+    # new_movie = Movie(**data)
+    try:
+        db.session.add(new_movie)
+        db.session.commit()
+        # check if movie is correctly updated
+        print(new_movie)
+        # create message to return
+        result = {"message": "added successfully", "data": new_movie.to_dict()}
+        # added status code
+        return jsonify(result), 201
+    except Exception as e:
+        # roll back changes before changing the data (unless committed already)
+        db.session.rollback()
+        # server error
+        result = {"error": str(e)}
+        return jsonify(result), 500
+
+
+# movie.name = update_data['name']
+# db.session.commit()
+@app.put("/movies/<id>")
+def update_movie(id):
+    update_data = request.json
+    # this references the specific memory location and therefore when you change it, it changes it inplace
+    # does not make a copy of memory to save memory and improve performance
+    specific_movie = Movie.query.get(id)
+    if specific_movie is None:
+        result = {"message": "movie not foumd"}
+        return jsonify(result), 404
+    try:
+        # name, poster, rating, summary, trailer
+        # update all values in "specific_movie" with values from "update_data" dictionary
+        # specific_movie.name = update_data.get("name", specific_movie.name)
+        # specific_movie.poster = update_data.get("poster", specific_movie.poster)
+        # specific_movie.rating = update_data.get("rating", specific_movie.rating)
+        # specific_movie.summary = update_data.get("summary", specific_movie.summary)
+        # specific_movie.trailer = update_data.get("trailer", specific_movie.trailer)
+        # loop body as you only want to work with specific keys we need to update
+        for key, value in update_data.items():
+            # if they put in random keys it will change it which is unsafe
+            # specific_movie.key = update_data.get(key, specific_movie.key)
+            # so now we check if the key is inn the table and only work with it if it is
+            if hasattr(specific_movie, key):
+                # now update those values
+                setattr(specific_movie, key, value)
+        db.session.commit()
+        # print(specific_movie)
+        # print(movies)
+        result = {
+            "messsage": "movie successfully updated",
+            "data": specific_movie.to_dict(),
+        }
+        return jsonify(result)
+    except Exception as e:
+        result = {"error": str(e)}
+        return jsonify(result), 500
+
+
+@app.route("/movielist/delete", methods=["POST"])
+def delete_movie_by_id():
+    print(request.form.get("movie_id"))
+    return "<h1>Movie deleted successfully</h1>"
 
 
 # Task 1
@@ -370,28 +456,28 @@ def new_movie_list():
 
 # POST -> request.json -> create movie + add to movies list -> JSON
 # 1 more than the max id
-@app.post("/movies")
-def create_movie():
-    # get new movie JSON data from body in request
-    new_movie = request.json
-    movie_ids = [int(movie["id"]) for movie in movies]
-    # print(movie_ids)
-    max_id = max(movie_ids)
-    print(max_id)
-    # dictionary
-    # print(type(new_movie))
-    # new_movie = {**new_movie, "id": str(max_id + 1)}
+# @app.post("/movies")
+# def create_movie():
+# get new movie JSON data from body in request
+# new_movie = request.json
+# movie_ids = [int(movie["id"]) for movie in movies]
+# print(movie_ids)
+# max_id = max(movie_ids)
+# print(max_id)
+# dictionary
+# print(type(new_movie))
+# new_movie = {**new_movie, "id": str(max_id + 1)}
 
-    # or
-    new_movie["id"] = str(max_id + 1)
-    # check if movie is correctly updated with new id
-    print(new_movie)
-    # add to movies list of dict
-    movies.append(new_movie)
-    # create message to return
-    result = {"message": "added successfully", "data": new_movie}
-    # added status code
-    return jsonify(result), 201
+# or
+# new_movie["id"] = str(max_id + 1)
+# check if movie is correctly updated with new id
+# print(new_movie)
+# add to movies list of dict
+# movies.append(new_movie)
+# create message to return
+# result = {"message": "added successfully", "data": new_movie}
+# added status code
+# return jsonify(result), 201
 
 
 # <variable_name> -> becomes the keyword argument to "get_specific_movie"
@@ -448,31 +534,31 @@ def create_movie():
 # return jsonify({"message": "Deleted Successfully"})
 
 
-@app.put("/movies/<id>")
-def update_movie(id):
-    update_data = request.json
-    # this references the specific memory location and therefore when you change it, it changes it inplace
-    # does not make a copy of memory to save memory and improve performance
-    specific_movie = next(
-        (movie for movie in movies if int(movie["id"]) == int(id)), None  # same memory
-    )
-    if specific_movie is None:
-        result = {"message": "movie not foumd"}
-        return jsonify(result), 404
-    # update all values in "specific_movie" with values from "update_data" dictionary
-    # it changes in place!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    specific_movie.update(update_data)
-    print(specific_movie)
-    # print(movies)
+# @app.put("/movies/<id>")
+# def update_movie(id):
+# update_data = request.json
+# this references the specific memory location and therefore when you change it, it changes it inplace
+# does not make a copy of memory to save memory and improve performance
+# specific_movie = next(
+# (movie for movie in movies if int(movie["id"]) == int(id)), None  # same memory
+# )
+# if specific_movie is None:
+# result = {"message": "movie not foumd"}
+# return jsonify(result), 404
+# update all values in "specific_movie" with values from "update_data" dictionary
+# it changes in place!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# specific_movie.update(update_data)
+# print(specific_movie)
+# print(movies)
 
-    # or
-    # movie_idx = next(
-    # (idx for idx, movie in enumerate(movies) if movie["id"] == id), None
-    # )
-    # print(movies[movie_idx])
-    # or movies[movie_idx].update(update_data)
-    # movies[movie_idx] = {**movies[movie_idx], **update_data}
-    # print(movies)
+# or
+# movie_idx = next(
+# (idx for idx, movie in enumerate(movies) if movie["id"] == id), None
+# )
+# print(movies[movie_idx])
+# or movies[movie_idx].update(update_data)
+# movies[movie_idx] = {**movies[movie_idx], **update_data}
+# print(movies)
 
-    result = {"messsage": "movie successfully updated", "data": specific_movie}
-    return jsonify(result)
+# result = {"messsage": "movie successfully updated", "data": specific_movie}
+# return jsonify(result)

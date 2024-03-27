@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 from app import Movie, db
 
+# THESE ARE FOR JSON REQUESTS BY FRONT-END DEVELOPERS
+
 # or no import and this code
 # class Movie(db.Model):
 #     __tablename__ = "movies"
@@ -34,6 +36,7 @@ from app import Movie, db
 movies_bp = Blueprint("movies", __name__)
 
 
+# ALL "MOVIES" URLS
 # ONLY JSON REQUESTS TO DATABASE
 
 

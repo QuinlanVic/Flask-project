@@ -1,16 +1,27 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from app import Movie, db
 
 
-# Task - /movies/add -> Add movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
-@movieslist_bp.route("/movieslist/add")
+movieslist_bp = Blueprint("movieslist", __name__)
+
+# ********* ALL MOVIESLIST URLS ***********
+
+
+# Task - /movieslist/add -> Add movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
+@movieslist_bp.route("/add")
 def add_movie_page():
     return render_template("addmovie.html")
 
 
+# Task - /movieslist/update -> Update movie form (5 existing fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
+@movieslist_bp.route("/update")
+def update_movie_page():
+    return render_template("updatemovie.html")
+
+
 # movies list
-@app.route("/movieslist")
+@movieslist_bp.route("/")
 def movie_list_page():
     movie_list = Movie.query.all()  # SELECT * FROM movies | movie_list iterator
     # print(type(movie_list)) # list
@@ -21,7 +32,7 @@ def movie_list_page():
 
 # Task 3 - display the data for specific movie on page
 # specific movie page
-@app.route("/movieslist/<id>")
+@movieslist_bp.route("/<id>")
 def movie_page(id):
     specific_movie = Movie.query.get(id)
 
@@ -31,9 +42,12 @@ def movie_page(id):
     return render_template("movie.html", movie=specific_movie.to_dict())
 
 
-@app.route("/movieslist/delete", methods=["POST"])
+# ***** FORM ACTION CRUD OPERATIONS *****
+
+
+@movieslist_bp.route("/delete", methods=["POST"])
 def delete_movie_by_id():
-    id = request.form.get("movie_id")
+    id = request.form.get("movie_id")  # get name from form
     movie = Movie.query.get(id)
     # print(request.form.get("movie_id")) # test if we found the correct id value
     # movie = Movie.query.get(id)
@@ -55,7 +69,7 @@ def delete_movie_by_id():
 
 
 # ADD MOVIE TO SQL DATABASE NOW NOT LOCAL
-@app.route("/movieslist", methods=["POST"])
+@movieslist_bp.route("/", methods=["POST"])
 def new_movie_list():
     movie_name = request.form.get("name")
     movie_poster = request.form.get("poster")
@@ -82,8 +96,15 @@ def new_movie_list():
         return f"<h1>An error occured: {str(e)}", 500
 
 
+# Spider-Man 2
+# https://m.media-amazon.com/images/M/MV5BMzY2ODk4NmUtOTVmNi00ZTdkLTlmOWYtMmE2OWVhNTU2OTVkXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_.jpg
+# 7.5
+# Peter Parker is beset with troubles in his failing personal life as he battles a former brilliant scientist named Otto Octavius.
+# https://www.imdb.com/video/vi629801241/?playlistId=tt0316654&ref_=tt_pr_ov_vi
+
+
 # UPDATE MOVIE FORM TO SQL DATABASE NOW NOT LOCAL
-@app.route("/movieslist", methods=["POST"])
+@movieslist_bp.route("/", methods=["POST"])
 def update_movie_list():
     movie_name = request.form.get("name")
     movie_poster = request.form.get("poster")
@@ -99,7 +120,6 @@ def update_movie_list():
     }
     specific_movie = Movie.query.get(id)
     if specific_movie is None:
-        result = {"message": "movie not foumd"}
         return "<h1>Movie not found</h1>"
     try:
         # update all values in "specific_movie" with values from "update_data" dictionary

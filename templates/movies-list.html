@@ -54,7 +54,7 @@
         "summary": "Members of a black ops team must track and eliminate a gang of masked murderers.",
         "trailer": "https://www.youtube.com/embed/OKBMCL-frPU",
     } -->
-    <a href="/movies/add"><button class="addbut" type="submit">Add Movie</button></a>
+    <a href="/movieslist/add"><button class="addbut" type="submit">Add Movie</button></a>
     <div class="movie-list-container">
         {% for movie in movies %}
         <div class="movie-container">
@@ -66,7 +66,8 @@
             <p>{{movie["summary"]}}</p>
             <div class="movie-actions">
                 <a href="/movieslist/{{movie['id']}}">Read More ...</a>
-                <form class="addmovie-form" action="{{url_for('delete_movie_by_id')}}" method="post">
+                <a href="/movieslist/update"><button type="submit">Update Movie</button></a>
+                <form class="addmovie-form" action="{{url_for('movieslist.delete_movie_by_id')}}" method="post">
                     <input name= "movie_id" type="text" value="{{movie.id}}" hidden>
                     <button type="submit">Delete</a>
                 </form>

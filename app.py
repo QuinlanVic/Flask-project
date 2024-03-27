@@ -423,33 +423,13 @@ def hello_world():
     return "<h1>Super, Cool 😁</h1>"
 
 
-users = [
-    {
-        "name": "Dhara",
-        "pic": "https://play-lh.googleusercontent.com/LeX880ebGwSM8Ai_zukSE83vLsyUEUePcPVsMJr2p8H3TUYwNg-2J_dVMdaVhfv1cHg",
-        "pro": True,
-    },
-    {
-        "name": "Gwen",
-        "pic": "https://preview.redd.it/tt7kh1z7hpf91.png?auto=webp&s=28df0a3a48f989b5337a1d54ba9431065299197c",
-        "pro": False,
-    },
-    {
-        "name": "Shego",
-        "pic": "https://w0.peakpx.com/wallpaper/828/185/HD-wallpaper-shego-kim.jpg",
-        "pro": True,
-    },
-]
-
-
-# /about page
-@app.route("/about")
-def about_page():
-    return render_template("about.html", users=users)
-
-
 name = "Caleb"
 hobbies = ["Gaming", "Reading", "Soccer", "Ballet", "Gyming"]
+
+from about_bp import about_bp
+
+# registering "about_bp.py" as a blueprint and add a prefix for the url
+app.register_blueprint(about_bp, url_prefix="/about")
 
 
 # /profile page

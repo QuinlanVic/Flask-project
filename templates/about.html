@@ -41,7 +41,7 @@
             <li><a href="/"> Home</a></li>
         </ul>
     </nav>
-    <!-- {% extends 'base.html' %} {% block body %} -->
+
     {%for user in users%}
     <div class = "user-container">
         <!-- mustache or template syntax -->
@@ -58,11 +58,9 @@
                 <!-- or ternary operator -->
                 {{user["name"]}} {{"🚀" if user["pro"] else "🎊"}}
         </span>
-        
-
         </p> 
     </div>
     {% endfor %}
-    <!-- {% endblock %} -->
+    
 </body>
 </html>

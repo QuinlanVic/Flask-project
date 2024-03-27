@@ -155,6 +155,14 @@ class User(db.Model):
         }
 
 
+# have to have import here because by now the db would have been created and movies_bp can import it from app
+# from user_bp import user_bp
+
+# registering "user_bp.py" as a blueprint and add a prefix for the url
+# view (Python fullstack) -> actually implementing through forms and stuff
+# app.register_blueprint(user_bp, url_prefix="/user")
+
+
 # Go to login page
 @app.route("/login")  # HOF
 def login_page():

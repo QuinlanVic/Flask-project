@@ -80,15 +80,10 @@ class Movie(db.Model):
         }
 
 
-# new get request getting data from azure
-@app.get("/movies")
-def get_movies():
-    movie_list = Movie.query.all()  # SELECT * FROM movies | movie_list iterator
-    data = [movie.to_dict() for movie in movie_list]  # convert to a list of dict
-    # print(data)
-    # print(type(jsonify(data)))
-    # return jsonify(data)
-    return data
+from movies_bp import movies_bp
+
+# registering "about_bp.py" as a blueprint and add a prefix for the url
+app.register_blueprint(movies_bp, url_prefix="/movies")
 
 
 # Task 2 - get movies from database
@@ -112,105 +107,6 @@ def movie_page(id):
         return "<h1>Movie not found</h1>"
 
     return render_template("movie.html", movie=specific_movie.to_dict())
-
-
-# Task 4 | db.session.delete(movie)
-# create delete API for movies
-@app.delete("/movies/<id>")
-def delete_movie(id):
-    movie_del = Movie.query.get(id)
-    if not movie_del:
-        # if we did not find it
-        result = {"message": "movie not found"}
-        return jsonify(result), 404
-    try:
-        # delete from database (not permanently)
-        db.session.delete(movie_del)
-        db.session.commit()  # making the change permanent (any change i.e., delete or update)
-        result = {"messsage": "movie successfully deleted", "data": movie_del.to_dict()}
-        return jsonify(result)
-    except Exception as e:
-        # roll back changes before changing the data (unless committed already)
-        db.session.rollback()
-        # server error
-        result = {"error": str(e)}
-        return jsonify(result), 500
-
-
-# POST -> request.json -> create movie + add to movies list -> JSON
-# 1 more than the max id
-@app.post("/movies")
-def create_movie():
-    # get new movie JSON data from body in request
-    data = request.json
-    # create a new movie with it, noo id as it is automatically created and asigned
-    new_movie = Movie(
-        name=data["name"],
-        poster=data["poster"],
-        rating=data["rating"],
-        summary=data["summary"],
-        trailer=data["trailer"],
-    )
-    # if keys of Model and keys of data sent from users side are the same then you can use unpacking
-    # risk = if they provide an "id" value it is added (not automatically generated)
-    # definitely a work-around
-    # new_movie = Movie(**data)
-    try:
-        db.session.add(new_movie)
-        db.session.commit()
-        # check if movie is correctly updated
-        print(new_movie)
-        # create message to return
-        result = {"message": "added successfully", "data": new_movie.to_dict()}
-        # added status code
-        return jsonify(result), 201
-    except Exception as e:
-        # roll back changes before changing the data (unless committed already)
-        db.session.rollback()
-        # server error
-        result = {"error": str(e)}
-        return jsonify(result), 500
-
-
-# movie.name = update_data['name']
-# db.session.commit()
-@app.put("/movies/<id>")
-def update_movie(id):
-    update_data = request.json
-    # this references the specific memory location and therefore when you change it, it changes it inplace
-    # does not make a copy of memory to save memory and improve performance
-    specific_movie = Movie.query.get(id)
-    if specific_movie is None:
-        result = {"message": "movie not foumd"}
-        return jsonify(result), 404
-    try:
-        # update all values in "specific_movie" with values from "update_data" dictionary
-        # use "data.get" so that it doesn't throw an error and we give the original value as the default value
-        # if the key is not supplied to be changed
-        # specific_movie.name = update_data.get("name", specific_movie.name)
-        # specific_movie.poster = update_data.get("poster", specific_movie.poster)
-        # specific_movie.rating = update_data.get("rating", specific_movie.rating)
-        # specific_movie.summary = update_data.get("summary", specific_movie.summary)
-        # specific_movie.trailer = update_data.get("trailer", specific_movie.trailer)
-        # loop body as you only want to work with specific keys we need to update
-        for key, value in update_data.items():
-            # if they put in random keys it will change it which is unsafe!!!!
-            # specific_movie.key = update_data.get(key, specific_movie.key)
-            # so now we check if the key is in the table and only work with it if it is
-            if hasattr(specific_movie, key):
-                # now update those values
-                setattr(specific_movie, key, value)
-        db.session.commit()
-        # print(specific_movie)
-        # print(movies)
-        result = {
-            "messsage": "movie successfully updated",
-            "data": specific_movie.to_dict(),
-        }
-        return jsonify(result)
-    except Exception as e:
-        result = {"error": str(e)}
-        return jsonify(result), 500
 
 
 @app.route("/movielist/delete", methods=["POST"])
@@ -297,124 +193,6 @@ def update_movie_list():
         return f"{specific_movie.name} successfully created"
     except Exception as e:
         return f"<h1>An error occured: {str(e)}"
-
-
-# Task 1
-# .all() - .get()
-# <variable_name> -> becomes the keyword argument to "get_specific_movie"
-@app.get("/movies/<id>")
-def get_specific_movie(id):
-    # print(type(id))  # string
-    # movie_list = Movie.query.all()  # SELECT * FROM movies | movie_list iterator
-    # data = [movie.to_dict() for movie in movie_list]  # convert to a list of dict
-    # or - generator expression + have to account for when nothing is found (default val = None)
-    # specific_movie = next((movie for movie in data if movie["id"] == id), None)
-    # print(type(specific_movie))
-
-    # get specific movie
-    specific_movie2 = Movie.query.get(id)
-
-    # if specific_movie == []:
-    if specific_movie2 is None:
-        result = {"message": "movie not found"}
-        return jsonify(result), 404
-
-    # convert to a dictionary
-    data = specific_movie2.to_dict()
-    result = {"message": "movie successfully found", "data": data}
-    return jsonify(result)
-
-
-movies = [
-    {
-        "id": "99",
-        "name": "Vikram",
-        "poster": "https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg",
-        "rating": 8.4,
-        "summary": "Members of a black ops team must track and eliminate a gang of masked murderers.",
-        "trailer": "https://www.youtube.com/embed/OKBMCL-frPU",
-    },
-    {
-        "id": "100",
-        "name": "RRR",
-        "poster": "https://englishtribuneimages.blob.core.windows.net/gallary-content/2021/6/Desk/2021_6$largeimg_977224513.JPG",
-        "rating": 8.8,
-        "summary": "RRR is an upcoming Indian Telugu-language period action drama film directed by S. S. Rajamouli, and produced by D. V. V. Danayya of DVV Entertainments.",
-        "trailer": "https://www.youtube.com/embed/f_vbAtFSEc0",
-    },
-    {
-        "id": "101",
-        "name": "Iron man 2",
-        "poster": "https://m.media-amazon.com/images/M/MV5BMTM0MDgwNjMyMl5BMl5BanBnXkFtZTcwNTg3NzAzMw@@._V1_FMjpg_UX1000_.jpg",
-        "rating": 7,
-        "summary": "With the world now aware that he is Iron Man, billionaire inventor Tony Stark (Robert Downey Jr.) faces pressure from all sides to share his technology with the military. He is reluctant to divulge the secrets of his armored suit, fearing the information will fall into the wrong hands. With Pepper Potts (Gwyneth Paltrow) and Rhodes (Don Cheadle) by his side, Tony must forge new alliances and confront a powerful new enemy.",
-        "trailer": "https://www.youtube.com/embed/wKtcmiifycU",
-    },
-    {
-        "id": "102",
-        "name": "No Country for Old Men",
-        "poster": "https://upload.wikimedia.org/wikipedia/en/8/8b/No_Country_for_Old_Men_poster.jpg",
-        "rating": 8.1,
-        "summary": "A hunter's life takes a drastic turn when he discovers two million dollars while strolling through the aftermath of a drug deal. He is then pursued by a psychopathic killer who wants the money.",
-        "trailer": "https://www.youtube.com/embed/38A__WT3-o0",
-    },
-    {
-        "id": "103",
-        "name": "Jai Bhim",
-        "poster": "https://m.media-amazon.com/images/M/MV5BY2Y5ZWMwZDgtZDQxYy00Mjk0LThhY2YtMmU1MTRmMjVhMjRiXkEyXkFqcGdeQXVyMTI1NDEyNTM5._V1_FMjpg_UX1000_.jpg",
-        "summary": "A tribal woman and a righteous lawyer battle in court to unravel the mystery around the disappearance of her husband, who was picked up the police on a false case",
-        "rating": 8.8,
-        "trailer": "https://www.youtube.com/embed/nnXpbTFrqXA",
-    },
-    {
-        "id": "104",
-        "name": "The Avengers",
-        "rating": 8,
-        "summary": "Marvel's The Avengers (classified under the name Marvel Avengers\n Assemble in the United Kingdom and Ireland), or simply The Avengers, is\n a 2012 American superhero film based on the Marvel Comics superhero team\n of the same name.",
-        "poster": "https://m.media-amazon.com/images/M/MV5BNDYxNjQyMjAtNTdiOS00NGYwLWFmNTAtNThmYjU5ZGI2YTI1XkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
-        "trailer": "https://www.youtube.com/embed/eOrNdBpGMv8",
-    },
-    {
-        "id": "105",
-        "name": "Interstellar",
-        "poster": "https://m.media-amazon.com/images/I/A1JVqNMI7UL._SL1500_.jpg",
-        "rating": 8.6,
-        "summary": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA\n pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team\n of researchers, to find a new planet for humans.",
-        "trailer": "https://www.youtube.com/embed/zSWdZVtXT7E",
-    },
-    {
-        "id": "106",
-        "name": "Baahubali",
-        "poster": "https://flxt.tmsimg.com/assets/p11546593_p_v10_af.jpg",
-        "rating": 8,
-        "summary": "In the kingdom of Mahishmati, Shivudu falls in love with a young warrior woman. While trying to woo her, he learns about the conflict-ridden past of his family and his true legacy.",
-        "trailer": "https://www.youtube.com/embed/sOEg_YZQsTI",
-    },
-    {
-        "id": "107",
-        "name": "Ratatouille",
-        "poster": "https://resizing.flixster.com/gL_JpWcD7sNHNYSwI1ff069Yyug=/ems.ZW1zLXByZC1hc3NldHMvbW92aWVzLzc4ZmJhZjZiLTEzNWMtNDIwOC1hYzU1LTgwZjE3ZjQzNTdiNy5qcGc=",
-        "rating": 8,
-        "summary": "Remy, a rat, aspires to become a renowned French chef. However, he fails to realise that people despise rodents and will never enjoy a meal cooked by him.",
-        "trailer": "https://www.youtube.com/embed/NgsQ8mVkN8w",
-    },
-    {
-        "name": "PS2",
-        "poster": "https://m.media-amazon.com/images/M/MV5BYjFjMTQzY2EtZjQ5MC00NGUyLWJiYWMtZDI3MTQ1MGU4OGY2XkEyXkFqcGdeQXVyNDExMjcyMzA@._V1_.jpg",
-        "summary": "Ponniyin Selvan: I is an upcoming Indian Tamil-language epic period action film directed by Mani Ratnam, who co-wrote it with Elango Kumaravel and B. Jeyamohan",
-        "rating": 8,
-        "trailer": "https://www.youtube.com/embed/KsH2LA8pCjo",
-        "id": "108",
-    },
-    {
-        "name": "Thor: Ragnarok",
-        "poster": "https://m.media-amazon.com/images/M/MV5BMjMyNDkzMzI1OF5BMl5BanBnXkFtZTgwODcxODg5MjI@._V1_.jpg",
-        "summary": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA\\n pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team\\n of researchers, to find a new planet for humans.",
-        "rating": 8.8,
-        "trailer": "https://youtu.be/NgsQ8mVkN8w",
-        "id": "109",
-    },
-]
 
 
 # home page
@@ -507,12 +285,6 @@ def dashboard_page():
 #     newmovie["id"] = str(max_id + 1)
 #     movies.append(newmovie)
 #     return render_template("movies-list.html", movies=movies)
-
-
-# Task - /movies/add -> Add movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
-@app.route("/movies/add")
-def add_movie_page():
-    return render_template("addmovie.html")
 
 
 # @app.route("/movieslist", methods=["POST"])

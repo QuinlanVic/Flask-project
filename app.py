@@ -24,6 +24,10 @@ app = Flask(__name__)
 connection_string = os.environ.get("AZURE_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
 db = SQLAlchemy(app)  # ORM
+# 3 advantages of working with the ORM driver
+# can read from/work with multiple databases (just change connection string)
+# no raw sql -> autocomplete functions (NOT "SELECT * movies..." in string format)
+# allows us to work with easier to work with datatypes (NOT query strings like above)
 
 # to test connection
 try:
@@ -52,6 +56,10 @@ except Exception as e:
 class Movie(db.Model):
     __tablename__ = "movies"
     # automatically creates and assigned value
+    # increased performance if you do not do calculations to update id by max id on the python side
+    # if autoincremented on the SQL side it will not have a decrease in preformance as it will remember the last value and update easily
+    # increased security as it is more difficult for people to guess "id" values
+    # easier to merge two tables as their id primary keys will not be the same/consist of duplicates
     id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(50))
     poster = db.Column(db.String(50))
@@ -60,6 +68,7 @@ class Movie(db.Model):
     trailer = db.Column(db.String(50))
 
     # JSON - Keys (can change names sent to front-end)
+    # dict is also easier to convert to JSON
     def to_dict(self):
         return {
             "id": self.id,
@@ -175,8 +184,9 @@ def update_movie(id):
         result = {"message": "movie not foumd"}
         return jsonify(result), 404
     try:
-        # name, poster, rating, summary, trailer
         # update all values in "specific_movie" with values from "update_data" dictionary
+        # use "data.get" so that it doesn't throw an error and we give the original value as the default value
+        # if the key is not supplied to be changed
         # specific_movie.name = update_data.get("name", specific_movie.name)
         # specific_movie.poster = update_data.get("poster", specific_movie.poster)
         # specific_movie.rating = update_data.get("rating", specific_movie.rating)
@@ -184,9 +194,9 @@ def update_movie(id):
         # specific_movie.trailer = update_data.get("trailer", specific_movie.trailer)
         # loop body as you only want to work with specific keys we need to update
         for key, value in update_data.items():
-            # if they put in random keys it will change it which is unsafe
+            # if they put in random keys it will change it which is unsafe!!!!
             # specific_movie.key = update_data.get(key, specific_movie.key)
-            # so now we check if the key is inn the table and only work with it if it is
+            # so now we check if the key is in the table and only work with it if it is
             if hasattr(specific_movie, key):
                 # now update those values
                 setattr(specific_movie, key, value)
@@ -205,8 +215,88 @@ def update_movie(id):
 
 @app.route("/movielist/delete", methods=["POST"])
 def delete_movie_by_id():
-    print(request.form.get("movie_id"))
-    return "<h1>Movie deleted successfully</h1>"
+    id = request.form.get("movie_id")
+    movie = Movie.query.get(id)
+    # print(request.form.get("movie_id")) # test if we found the correct id value
+    # movie = Movie.query.get(id)
+    if not movie:
+        # return jsonify({"message": "Movie not found"}), 404
+        # Do not return JSON data as you want to display the information on the screen
+        return "<h1>Movie not found</h1>", 404
+    # otherwise delete it
+    try:
+        db.session.delete(movie)
+        db.session.commit()
+        # return jsonify({"message": "Movie deleted successfully", "data": movie.to_dict()})
+        # Do not return JSON data as you want to display the information on the screen
+        return f"<h1>{movie.to_dict()['name']} successfully deleted</h1>"
+    except Exception as e:
+        # return jsonify({"error": str(e)})
+        # Do not return JSON data as you want to display the information on the screen to the user
+        return f"<h1>An error occured: {str(e)}</h1>", 500
+
+
+# ADD MOVIE TO SQL DATABASE NOW NOT LOCAL
+@app.route("/movieslist", methods=["POST"])
+def new_movie_list():
+    movie_name = request.form.get("name")
+    movie_poster = request.form.get("poster")
+    movie_rating = request.form.get("rating")
+    movie_summary = request.form.get("summary")
+    movie_trailer = request.form.get("trailer")
+    # create new movie
+    new_movie = Movie(
+        name=movie_name,
+        poster=movie_poster,
+        rating=movie_rating,
+        summary=movie_summary,
+        trailer=movie_trailer,
+    )
+    try:
+        db.session.add(new_movie)
+        db.session.commit()
+        movie_list = Movie.query.all()
+        data = [movie.to_dict() for movie in movie_list]  # convert to a list of dict
+        # return render_template("movies-list.html", movies=data)
+        return f"{new_movie.name} successfully created"
+    except Exception as e:
+        db.session.rollback()  # Undo the change (cannot be done if already committed)
+        return f"<h1>An error occured: {str(e)}", 500
+
+
+# UPDATE MOVIE FORM TO SQL DATABASE NOW NOT LOCAL
+@app.route("/movieslist", methods=["POST"])
+def update_movie_list():
+    movie_name = request.form.get("name")
+    movie_poster = request.form.get("poster")
+    movie_rating = request.form.get("rating")
+    movie_summary = request.form.get("summary")
+    movie_trailer = request.form.get("trailer")
+    update_data = {
+        "name": movie_name,
+        "poster": movie_poster,
+        "rating": movie_rating,
+        "summary": movie_summary,
+        "trailer": movie_trailer,
+    }
+    specific_movie = Movie.query.get(id)
+    if specific_movie is None:
+        result = {"message": "movie not foumd"}
+        return "<h1>Movie not found</h1>"
+    try:
+        # update all values in "specific_movie" with values from "update_data" dictionary
+        # loop body as you only want to work with specific keys we need to update
+        for key, value in update_data.items():
+            # if they put in random keys it will change it which is unsafe!!!!
+            # specific_movie.key = update_data.get(key, specific_movie.key)
+            # so now we check if the key is in the table and only work with it if it is
+            if hasattr(specific_movie, key):
+                # now update those values
+                setattr(specific_movie, key, value)
+        db.session.commit()
+        return f"{specific_movie.name} successfully created"
+    except Exception as e:
+        return f"<h1>An error occured: {str(e)}"
 
 
 # Task 1
@@ -411,33 +501,61 @@ def dashboard_page():
     return f"<h1>Hi {username}, welcome to our Movies App 🙂</h1>"
 
 
+# Task - /movies/update -> update movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
+# @app.route("/movies/update")
+# def add_movie_page():
+#     return render_template("updatemovie.html")
+
+# @app.route("/movieslist", methods=["POST"])
+# def new_movie_list():
+#     movie_name = request.form.get("name")
+#     movie_poster = request.form.get("poster")
+#     movie_rating = request.form.get("rating")
+#     movie_summary = request.form.get("summary")
+#     movie_trailer = request.form.get("trailer")
+#     newmovie = {
+#         "name": movie_name,
+#         "poster": movie_poster,
+#         "rating": float(movie_rating),
+#         "summary": movie_summary,
+#         "trailer": movie_trailer,
+#     }
+#     movie_ids = [int(movie["id"]) for movie in movies]
+#     max_id = max(movie_ids)
+#     print(max_id)
+#     # or
+#     newmovie["id"] = str(max_id + 1)
+#     movies.append(newmovie)
+#     return render_template("movies-list.html", movies=movies)
+
+
 # Task - /movies/add -> Add movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
 @app.route("/movies/add")
 def add_movie_page():
     return render_template("addmovie.html")
 
 
-@app.route("/movieslist", methods=["POST"])
-def new_movie_list():
-    movie_name = request.form.get("name")
-    movie_poster = request.form.get("poster")
-    movie_rating = request.form.get("rating")
-    movie_summary = request.form.get("summary")
-    movie_trailer = request.form.get("trailer")
-    newmovie = {
-        "name": movie_name,
-        "poster": movie_poster,
-        "rating": float(movie_rating),
-        "summary": movie_summary,
-        "trailer": movie_trailer,
-    }
-    movie_ids = [int(movie["id"]) for movie in movies]
-    max_id = max(movie_ids)
-    print(max_id)
-    # or
-    newmovie["id"] = str(max_id + 1)
-    movies.append(newmovie)
-    return render_template("movies-list.html", movies=movies)
+# @app.route("/movieslist", methods=["POST"])
+# def new_movie_list():
+#     movie_name = request.form.get("name")
+#     movie_poster = request.form.get("poster")
+#     movie_rating = request.form.get("rating")
+#     movie_summary = request.form.get("summary")
+#     movie_trailer = request.form.get("trailer")
+#     newmovie = {
+#         "name": movie_name,
+#         "poster": movie_poster,
+#         "rating": float(movie_rating),
+#         "summary": movie_summary,
+#         "trailer": movie_trailer,
+#     }
+#     movie_ids = [int(movie["id"]) for movie in movies]
+#     max_id = max(movie_ids)
+#     print(max_id)
+#     # or
+#     newmovie["id"] = str(max_id + 1)
+#     movies.append(newmovie)
+#     return render_template("movies-list.html", movies=movies)
 
 
 # Spider-Man 2
@@ -446,6 +564,8 @@ def new_movie_list():
 # Peter Parker is beset with troubles in his failing personal life as he battles a former brilliant scientist named Otto Octavius.
 # https://www.imdb.com/video/vi629801241/?playlistId=tt0316654&ref_=tt_pr_ov_vi
 
+
+# ***************************** OLD CODE VERSION *********************************************************************************************************************
 
 # GET -> movies page -> JSON
 # @app.get("/movies")

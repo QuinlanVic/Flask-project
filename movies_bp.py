@@ -1,9 +1,40 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 
 from app import Movie, db
 
+# or no import and this code
+# class Movie(db.Model):
+#     __tablename__ = "movies"
+#     # automatically creates and assigned value
+#     # increased performance if you do not do calculations to update id by max id on the python side
+#     # if autoincremented on the SQL side it will not have a decrease in preformance as it will remember the last value and update easily
+#     # increased security as it is more difficult for people to guess "id" values
+#     # easier to merge two tables as their id primary keys will not be the same/consist of duplicates
+#     id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
+#     name = db.Column(db.String(50))
+#     poster = db.Column(db.String(50))
+#     rating = db.Column(db.Float(50))
+#     summary = db.Column(db.String(50))
+#     trailer = db.Column(db.String(50))
+
+#     # JSON - Keys (can change names sent to front-end)
+#     # dict is also easier to convert to JSON
+#     def to_dict(self):
+#         return {
+#             "id": self.id,
+#             "name": self.name,
+#             "poster": self.poster,
+#             "rating": self.rating,
+#             "summary": self.summary,
+#             "trailer": self.trailer,
+#         }
+# db = SQLAlchemy()
+
 movies_bp = Blueprint("movies", __name__)
+
+
+# ONLY JSON REQUESTS TO DATABASE
 
 
 # get all movies from azure request
@@ -17,16 +48,10 @@ def get_movies():
     return data
 
 
-# Task - /movies/add -> Add movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
-@movies_bp.route("/add")
-def add_movie_page():
-    return render_template("addmovie.html")
-
-
 # Task 1
 # .all() = .get()
 # <variable_name> -> becomes the keyword argument to "get_specific_movie"
-# Get a specific movie from azure
+# Get a specific movie from azure request
 @movies_bp.get("/<id>")
 def get_specific_movie(id):
     # print(type(id))  # string
@@ -52,7 +77,7 @@ def get_specific_movie(id):
 
 # POST -> request.json -> create movie + add to movies list -> JSON
 # 1 more than the max id
-# Create a new movie and add it to azure db
+# Create a new movie and add it to azure db request
 @movies_bp.post("/")
 def create_movie():
     # get new movie JSON data from body in request
@@ -88,7 +113,7 @@ def create_movie():
 
 # movie.name = update_data['name']
 # db.session.commit()
-# Update specific movie and add to azure db
+# Update specific movie and add to azure db request
 @movies_bp.put("/<id>")
 def update_movie(id):
     update_data = request.json
@@ -130,7 +155,7 @@ def update_movie(id):
 
 # Task 4 | db.session.delete(movie)
 # create delete API for movies
-# Delete the specific movie from azure db
+# Delete the specific movie from azure db request
 @movies_bp.delete("/<id>")
 def delete_movie(id):
     movie_del = Movie.query.get(id)

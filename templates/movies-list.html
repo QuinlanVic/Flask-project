@@ -66,10 +66,13 @@
             <p>{{movie["summary"]}}</p>
             <div class="movie-actions">
                 <a href="/movieslist/{{movie['id']}}">Read More ...</a>
-                <a href="/movieslist/update"><button type="submit">Update Movie</button></a>
+                <form class="addmovie-form" action="{{url_for('movieslist.update_movie_page')}}" method="post">
+                    <input name= "movie" type="text" value="{{movie}}" hidden>
+                    <button type="submit">Update</button>
+                </form>
                 <form class="addmovie-form" action="{{url_for('movieslist.delete_movie_by_id')}}" method="post">
                     <input name= "movie_id" type="text" value="{{movie.id}}" hidden>
-                    <button type="submit">Delete</a>
+                    <button type="submit">Delete</button>
                 </form>
             </div>
         </div>

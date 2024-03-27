@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request
 
 from app import Movie, db
 
+import json
 
 movieslist_bp = Blueprint("movieslist", __name__)
 
@@ -15,9 +16,17 @@ def add_movie_page():
 
 
 # Task - /movieslist/update -> Update movie form (5 existing fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
-@movieslist_bp.route("/update")
+@movieslist_bp.route("/update", methods=["POST"])
 def update_movie_page():
-    return render_template("updatemovie.html")
+    movie = request.form.get("movie")
+    print(movie)
+    print(type(movie))
+    # funny error as JSON only supports single quotes LOLOLOLOLOL
+    movie_json = movie.replace("'", '"')
+    # convert into a dict
+    movie_dict = json.loads(movie_json)
+    print(type(movie_dict))
+    return render_template("updatemovie.html", movie=movie_dict)
 
 
 # movies list
@@ -104,8 +113,9 @@ def new_movie_list():
 
 
 # UPDATE MOVIE FORM TO SQL DATABASE NOW NOT LOCAL
-@movieslist_bp.route("/", methods=["POST"])
+@movieslist_bp.route("/update/db", methods=["POST"])
 def update_movie_list():
+    movie_id = request.form.get("id")
     movie_name = request.form.get("name")
     movie_poster = request.form.get("poster")
     movie_rating = request.form.get("rating")
@@ -118,7 +128,7 @@ def update_movie_list():
         "summary": movie_summary,
         "trailer": movie_trailer,
     }
-    specific_movie = Movie.query.get(id)
+    specific_movie = Movie.query.get(movie_id)
     if specific_movie is None:
         return "<h1>Movie not found</h1>"
     try:
@@ -132,6 +142,6 @@ def update_movie_list():
                 # now update those values
                 setattr(specific_movie, key, value)
         db.session.commit()
-        return f"{specific_movie.name} successfully created"
+        return f"{specific_movie.name} successfully updated"
     except Exception as e:
         return f"<h1>An error occured: {str(e)}"

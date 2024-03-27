@@ -14,14 +14,15 @@
 <body>
     <!-- Have to use GET or POST as these 2 methods are the only 2 supported by forms -->
     <!-- POST (more secure) -->
-    <form class="upmovie-form" action="{{url_for('movieslist.update_movie_list')}}" method="post" accept="movie">
+    <form class="upmovie-form" action="{{url_for('movieslist.update_movie_list')}}" method="post">
         <!-- input element to accept user input -->
         <!-- name = key for your value -->
-        <input name="name" type="text" placeholder="{{movie.name}}"/>
-        <input name="poster" type="text" placeholder="{{movie.poster}}"/>
-        <input name="rating" type="text" placeholder="{{movie.rating}}"/>
-        <input name="summary" type="text" placeholder="{{movie.summary}}"/>
-        <input name="trailer" type="text" placeholder="{{movie.trailer}}"/>
+        <input hidden name="id" type="text" value="{{movie['id']}}"/>
+        <input name="name" type="text" value="{{movie['name']}}"/>
+        <input name="poster" type="text" value="{{movie['poster']}}"/>
+        <input name="rating" type="text" value="{{movie['rating']}}"/>
+        <input name="summary" type="text" value="{{movie['summary']}}"/>
+        <input name="trailer" type="text" value="{{movie['trailer']}}"/>
         <button type="submit">Update Movie</button>
     </form>
 </body>

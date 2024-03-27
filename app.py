@@ -126,6 +126,11 @@ def profile_page():
     return render_template("profile.html", name=name, hobbies=hobbies)
 
 
+@app.route("/sample")
+def sample_page():
+    return render_template("sample.html")
+
+
 # Task - User Model | id, username, password
 # Sign Up page
 # Login page
@@ -172,7 +177,7 @@ def dashboard_page():
 
 
 # Delete a user from FORM
-@app.route("user/delete", methods=["POST"])
+@app.route("/user/delete", methods=["POST"])
 def delete_user_by_id():
     id = request.form.get("user_id")
     user = User.query.get(id)

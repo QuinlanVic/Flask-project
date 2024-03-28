@@ -115,7 +115,7 @@ def new_movie_list():
 
 
 # UPDATE MOVIE FORM TO SQL DATABASE NOW NOT LOCAL
-# has to be a different url or it will do the other "/update" earier as
+# has to be a different url or it will do the other "/update" above as
 # it also uses a POST method because it has to for passing data for some reason
 @movieslist_bp.route("/update/db", methods=["POST"])
 def update_movie_list():

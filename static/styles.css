@@ -1,3 +1,5 @@
+/* static because these things do not change often  */
+/* Links global styles from "styles.css" to HTML elements via templates. */
 .red-box {
     background: crimson;
 }

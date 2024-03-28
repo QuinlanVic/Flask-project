@@ -7,6 +7,7 @@ import json
 movieslist_bp = Blueprint("movieslist", __name__)
 
 # ********* ALL MOVIESLIST URLS ***********
+# Defines View part of web application
 
 
 # Task - /movieslist/add -> Add movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
@@ -16,7 +17,7 @@ def add_movie_page():
 
 
 # Task - /movieslist/update -> Update movie form (5 existing fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
-# Has to be post to pass the data for some reason?
+# Has to be post to pass the data via body (get uses URL)
 # take you to update form with data after manipulation
 @movieslist_bp.route("/update", methods=["POST"])
 def update_movie_page():
@@ -116,7 +117,7 @@ def new_movie_list():
 
 # UPDATE MOVIE FORM TO SQL DATABASE NOW NOT LOCAL
 # has to be a different url or it will do the other "/update" above as
-# it also uses a POST method because it has to for passing data for some reason
+# it also uses a POST method because it has to for passing data via body (get uses URL)
 @movieslist_bp.route("/update/db", methods=["POST"])
 def update_movie_list():
     movie_id = request.form.get("id")

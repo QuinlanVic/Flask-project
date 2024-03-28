@@ -21,6 +21,14 @@
 
         {% endif %}
 
+        {% if form.password.errors %}
+
+            {% for error in form.password.errors %}
+                <div style="color:red">{{error}}</div>
+            {% endfor %}
+
+        {% endif %}
+
         <!-- add labels so users always know what they must type in -->
         {{form.username.label}}: {{form.username(placeholder="Rashay")}} <br>
         {{form.password.label}} {{form.password(placeholder="password")}} <br>

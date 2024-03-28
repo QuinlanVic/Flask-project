@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, flash
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
@@ -31,6 +31,8 @@ app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # token
 # change connection string when working with different databases
 connection_string = os.environ.get("AZURE_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
+# Sqlalchemy is a Python SQL toolkit & ORM ->
+# easy to submit SQL queries as well as map objects to table definitions and vice versa
 db = SQLAlchemy(app)  # ORM
 # 3 advantages of working with the ORM driver
 # can read from/work with multiple databases (just change connection string)
@@ -350,7 +352,7 @@ def signup_page():
 
 
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
+from wtforms.validators import InputRequired, Length, ValidationError, EqualTo
 
 
 # registration validation
@@ -391,23 +393,17 @@ class LoginForm(FlaskForm):
         # print(specific_user)
 
         # if it does not exist then user cannot log in and we send them back to getin page
-        if not specific_user or self.password != specific_user.password:
+        if not specific_user:
             # the message below is displayed in the "div" in the register form
-            raise ValidationError("Username or Password is invalid")
+            raise ValidationError("Username or password invalid")
 
+    # Validate for login form
     def validate_password(self, field):
-        print("Validate password was called (log)", field.data)
-        return field.data
-
-
-# from sqlalchemy import select
-
-# # session = Session(engine)
-
-# stmt = select(User).where(User.username.in_(["spongebob", "sandy"]))
-
-# for user in db.session.scalars(stmt):
-#     print(user)
+        # access username via self
+        user = User.query.filter_by(username=self.username.data).first()
+        if user:
+            if user.password != field.data:
+                raise ValidationError("Username or password is invalid")
 
 
 # GET - Issue token
@@ -431,8 +427,9 @@ def getin_page():
         print(specific_user)
 
         # if it does not exist then user cannot sign up and send them back to register page
-        if not specific_user:
-            return render_template("register.html", form=form)
+        if not specific_user or specific_user.password != form.password.data:
+            # flash("Invalid username or password", "danger")
+            return render_template("getin.html", form=form)
         # otherwise user has logged in successfully
         return f"<h1>Welcome back, {form.username.data}"
 

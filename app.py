@@ -37,15 +37,6 @@ db = SQLAlchemy(app)  # ORM
 # no raw sql -> autocomplete functions (NOT "SELECT * movies..." in string format)
 # allows us to manipulate easier to work with datatypes (NOT query strings like above)
 
-# to test connection
-try:
-    with app.app_context():
-        # Use text() to explicitly declare your SQL command
-        result = db.session.execute(text("SELECT 1")).fetchall()
-        print("Connection successful:", result)
-except Exception as e:
-    print("Error connecting to the database:", e)
-
 
 # Model (SQLAlchemy) == Schema
 # CREATE TABLE movies (
@@ -88,6 +79,38 @@ class Movie(db.Model):
             "trailer": self.trailer,
         }
 
+
+class User(db.Model):
+    __tablename__ = "users"
+    # automatically creates and assigns value
+    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
+    # make unique
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+    # JSON - Keys (can change names sent to front-end)
+    # class method
+    # dict is also easier to convert to JSON
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "password": self.password,
+        }
+
+
+# to test connection
+try:
+    with app.app_context():
+        # Use text() to explicitly declare your SQL command
+        result = db.session.execute(text("SELECT 1")).fetchall()
+        print("Connection successful:", result)
+        # only use create all once and then comment out again so it doesn't try to create tables with each restart of the server
+        # it won't cause an error as it only adds if it doesn't exist
+        # but always keep it there when in production (for updates)
+        # db.create_all()  # easier way to create tables through python after connecting
+except Exception as e:
+    print("Error connecting to the database:", e)
 
 # have to have import here because by now the db would have been created and movies_bp can import it from app
 from movies_bp import movies_bp
@@ -141,23 +164,6 @@ def sample_page():
 # Create a user, delete, update, get
 # sign up = check if user exists
 # login = check if user and password match
-class User(db.Model):
-    __tablename__ = "users"
-    # automatically creates and assigns value
-    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
-    # make unique
-    username = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(50))
-
-    # JSON - Keys (can change names sent to front-end)
-    # class method
-    # dict is also easier to convert to JSON
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "username": self.username,
-            "password": self.password,
-        }
 
 
 # have to have import here because by now the db would have been created and movies_bp can import it from app
@@ -355,6 +361,23 @@ class RegistrationForm(FlaskForm):
     )
     submit = SubmitField("Sign Up")
 
+    # use WTF to send user back to registration page if input is invalid
+    # automatically runs when the "form.validate_on_submit()" function executes
+    # class method (instance and data from user form via field)
+    def validate_username(self, field):
+        print("Validate username was called", field.data)
+        pass
+
+
+# from sqlalchemy import select
+
+# # session = Session(engine)
+
+# stmt = select(User).where(User.username.in_(["spongebob", "sandy"]))
+
+# for user in db.session.scalars(stmt):
+#     print(user)
+
 
 # GET - Issue token
 # POST - Verify token
@@ -367,7 +390,23 @@ def register_page():
 
     # only on POST (when user is registering)
     if form.validate_on_submit():
-        print(form.username.data, form.password.data)
+        # check if username is already in database
+        # specific_user = User.query.get(form.username.data)
+        # specific_user = db.session.query(User).filter(
+        #     User.username == (form.username.data)
+        # )
+        # or
+        specific_user = User.query.filter_by(username=form.username.data).first()
+        print(specific_user)
+
+        # if it does exist then user cannot sign up and send them back to register page
+        if specific_user:
+            return (
+                "<h1>User already exists, please input a different username :)</h1>",
+                render_template("register.html", form=form),
+            )
+        # otherwise create a new user entry
+        # print(form.username.data, form.password.data)
         # add registered users to the database
         new_user = User(
             username=form.username.data, password=form.password.data
@@ -376,7 +415,7 @@ def register_page():
             db.session.add(new_user)
             db.session.commit()
             # print("Profile page", username, password)
-            return "<h1> Registration successful </h1>"
+            return "<h1> Registration successful </h1>", 201
         # now send them to new profile page
         # return render_template("profile.html", new_user.to_dict())
         except Exception as e:

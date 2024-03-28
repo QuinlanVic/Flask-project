@@ -391,7 +391,7 @@ class LoginForm(FlaskForm):
         # print(specific_user)
 
         # if it does not exist then user cannot log in and we send them back to getin page
-        if not specific_user or self.validate_password() != specific_user.password:
+        if not specific_user or self.password != specific_user.password:
             # the message below is displayed in the "div" in the register form
             raise ValidationError("Username or Password is invalid")
 

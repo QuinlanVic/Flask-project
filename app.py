@@ -481,3 +481,7 @@ def register_page():
     # only on GET
     # then use it in register page
     return render_template("register.html", form=form)
+
+
+# store tokens in browser (local storage or cookies) (gets given after signing up/logging in)
+# no token, no data

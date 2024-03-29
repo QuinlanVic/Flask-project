@@ -39,9 +39,11 @@
             <!-- add labels so users always know what they must type in -->
             <div class="form-group">
                 <!-- add "is-invalid" next to "form-control" if there are errors -->
-                {{form.username.label}}: {{form.username(placeholder="Rashay", class="form-control {{ if form.username.errors 'is-invalid' }}")}}
+              {{form.username.label}}: {{form.username(placeholder="Rashay", class="form-control {{ if form.username.errors 'is-invalid' }}")}}
             </div>
-            {{form.password.label}} {{form.password(placeholder="password", class="form-control")}}
+            <div class="form-group">
+              {{form.password.label}} {{form.password(placeholder="password", class="form-control")}}
+            </div>
             {{form.submit(class="btn btn-primary")}}
         </form>
     </div>

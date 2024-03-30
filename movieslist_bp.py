@@ -9,6 +9,18 @@ movieslist_bp = Blueprint("movieslist", __name__)
 # ********* ALL MOVIESLIST URLS ***********
 # Defines View part of web application
 
+# OLD LOGIN AND SIGNUP
+# Go to login page
+# @app.route("/login")  # HOF
+# def login_page():
+#     return render_template("login.html")
+
+
+# Go to signup page
+# @app.route("/signup")  # HOF
+# def signup_page():
+#     return render_template("signup.html")
+
 
 # Task - /movieslist/add -> Add movie form (5 fields = name, poster, rating, summary, trailer) -> Submit -> /movies-list
 @movieslist_bp.route("/add")

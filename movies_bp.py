@@ -178,3 +178,50 @@ def delete_movie(id):
         # server error
         result = {"error": str(e)}
         return jsonify(result), 500
+
+
+# # ***************** THESE ARE OLD JSON REQUESTS BY FRONT-END DEVELOPERS FOR USERS *******************
+
+
+# # Get a specific user from azure request
+# @app.get("/user/<id>")
+# def get_specific_user(id):
+#     # get specific user
+#     specific_user = User.query.get(id)
+
+#     if specific_user is None:
+#         result = {"message": "user not found"}
+#         return jsonify(result), 404
+
+#     # convert to a dictionary
+#     data = specific_user.to_dict()
+#     result = {"message": "user successfully found", "data": data}
+#     return jsonify(result)
+
+
+# # Create a new user and add it to azure db request
+# @app.post("/")
+# def create_user():
+#     # get new user JSON data from body in request
+#     data = request.json
+#     # create a new user with it, not id as it is automatically created and asigned
+#     new_user = User(username=data["username"], password=data["password"])
+#     # if keys of Model and keys of data sent from users side are the same then you can use unpacking
+#     # risk = if they provide an "id" value it is added (not automatically generated)
+#     # definitely a work-around
+#     # new_user = User(**data)
+#     try:
+#         db.session.add(new_user)
+#         db.session.commit()
+#         # check if user is correctly updated
+#         print(new_user)
+#         # create message to return
+#         result = {"message": "user added successfully", "data": new_user.to_dict()}
+#         # added status code
+#         return jsonify(result), 201
+#     except Exception as e:
+#         # roll back changes before changing the data (unless committed already)
+#         db.session.rollback()
+#         # server error
+#         result = {"error": str(e)}
+#         return jsonify(result), 500

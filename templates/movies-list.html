@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+
+{% block title %} Movies {% endblock %}
+
 {% block content %}
 <!-- <body> -->
     <a href="/movieslist/add"><button class="addbut" type="submit">Add Movie</button></a>
@@ -15,11 +18,11 @@
                 <a href="/movieslist/{{movie['id']}}">Read More ...</a>
                 <form class="addmovie-form" action="{{url_for('movieslist.update_movie_page')}}" method="post">
                     <input name= "movie" type="text" value="{{movie}}" hidden>
-                    <button type="submit">Update</button>
+                    <button type="submit" class="btn btn-warning">Update</button>
                 </form>
                 <form class="addmovie-form" action="{{url_for('movieslist.delete_movie_by_id')}}" method="post">
                     <input name= "movie_id" type="text" value="{{movie.id}}" hidden>
-                    <button type="submit">Delete</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
         </div>

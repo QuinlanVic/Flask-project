@@ -47,10 +47,3 @@
 .addbut {
     margin-bottom: 8px;
 }
-
-
-/* login page */
-.login-form {
-    display: grid;
-    gap: 12px;
-}

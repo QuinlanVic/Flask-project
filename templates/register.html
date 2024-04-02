@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>register:</h1>
+{% extends 'base.html' %}
 
+{% block title %} Register {% endblock %}
+
+<!-- <body> -->
+{% block content %}
+<div class="container">
+    <h1>Register:</h1>
     <!-- if we want to refer to the current URL but with different action as POST -->
     <form action="" method="POST">
         <!-- Hidden input field with token as value (CSRF) -->
@@ -21,10 +19,15 @@
 
         {% endif %}
 
+        <div class="form-group">
         <!-- add labels so users always know what they must type in -->
-        {{form.username.label}}: {{form.username(placeholder="Rashay")}} <br>
-        {{form.password.label}} {{form.password(placeholder="password")}} <br>
-        {{form.submit()}}
+            {{form.username.label}}: {{form.username(placeholder="Rashay", class="form-control")}} 
+        </div>
+        <div class="form-group">
+            {{form.password.label}} {{form.password(placeholder="password", class="form-control")}}
+        </div>
+        {{form.submit(class="btn btn-primary")}}
     </form>
-</body>
-</html>
+</div>
+{% endblock %}
+<!-- </body> -->

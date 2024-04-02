@@ -31,12 +31,13 @@ app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # token
 # change connection string when working with different databases
 connection_string = os.environ.get("AZURE_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
-# Sqlalchemy is a Python SQL toolkit & ORM ->
+# ORM = Object Relation Mapping
+# Sqlalchemy is a Python SQL toolkit & an ORM driver ->
 # easy to submit SQL queries as well as map objects to table definitions and vice versa
 db = SQLAlchemy(app)  # ORM
 # 3 advantages of working with the ORM driver
 # can read from/work with multiple databases (just change connection string)
-# no raw sql -> autocomplete functions (NOT "SELECT * movies..." in string format)
+# no raw sql -> autocomplete functions (.get(), .all(), .filterby()) (NOT "SELECT * movies..." in string format, it's an abstraction of that)
 # allows us to manipulate easier to work with datatypes (NOT query strings like above)
 
 

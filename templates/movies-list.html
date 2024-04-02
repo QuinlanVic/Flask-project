@@ -1,59 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        .movie-container {
-            /* background: orange; */
-            /* set width same as poster so all together */
-            /* by default takes up entire space of container as div is a block element by default */
-            width: 300px;
-        }
-        .movie-spec {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .movie-poster {
-            height: 540px; 
-            width: 100%;
-            object-fit: cover; 
-            border-radius: 24px;
-            /* box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px; */
-            /* box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px; */
-            box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-        }
-        .movie-name {
-            margin: 0px
-        }
-        .movie-list-container {
-            display: flex;
-            /* always keeps the gap */
-            gap: 16px;
-            /* space inbetween the elements */
-            justify-content: space-around;
-            flex-wrap: wrap;
-        }
-        .movie-actions {
-            display: flex;
-            justify-content: space-between;
-        }
-        .addbut {
-            margin-bottom: 8px;
-        }
-    </style>
-</head>
-<body>
-    <!-- {
-        "id": "99",
-        "name": "Vikram",
-        "poster": "https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg",
-        "rating": 8.4,
-        "summary": "Members of a black ops team must track and eliminate a gang of masked murderers.",
-        "trailer": "https://www.youtube.com/embed/OKBMCL-frPU",
-    } -->
+{% extends 'base.html' %}
+{% block content %}
+<!-- <body> -->
     <a href="/movieslist/add"><button class="addbut" type="submit">Add Movie</button></a>
     <div class="movie-list-container">
         {% for movie in movies %}
@@ -78,5 +25,5 @@
         </div>
         {% endfor %}
     </div>
-</body>
-</html>
+<!-- </body> -->
+{% endblock %}

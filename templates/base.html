@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}"> 
 </head>
 <body>
-    <section class="red-box">{% block redbox %} {% endblock %}</section>
-    <div class="green-box">{% block greenbox %} {% endblock %}</div>
+    <!-- <section class="red-box">{% block redbox %} {% endblock %}</section>
+    <div class="green-box">{% block greenbox %} {% endblock %}</div> -->
+    {% block content %}
+    {% endblock %}
 </body>
 </html>

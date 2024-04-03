@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request
 
-from app import Movie, db
+from extensions import db
+
+from models.movie import Movie
 
 import json
 

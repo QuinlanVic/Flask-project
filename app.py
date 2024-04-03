@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 from pprint import pprint
 import uuid
 
+from extensions import db
+
 from flask_wtf import FlaskForm
 
 import json
@@ -31,75 +33,16 @@ app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # token
 # change connection string when working with different databases
 connection_string = os.environ.get("AZURE_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
+
+db.init_app(app)
 # ORM = Object Relation Mapping
 # Sqlalchemy is a Python SQL toolkit & an ORM driver ->
 # easy to submit SQL queries as well as map objects to table definitions and vice versa
-db = SQLAlchemy(app)  # ORM
+# db = SQLAlchemy(app)  # ORM
 # 3 advantages of working with the ORM driver
 # can read from/work with multiple databases (just change connection string)
 # no raw sql -> autocomplete functions (.get(), .all(), .filterby()) (NOT "SELECT * movies..." in string format, it's an abstraction of that)
 # allows us to manipulate easier to work with datatypes (NOT query strings like above)
-
-
-# Model (SQLAlchemy) == Schema
-# CREATE TABLE movies (
-# 	has to be varchar so it can be indexed for increased performance (TEXT cannot be indexed)
-# 	id VARCHAR(50) PRIMARY KEY,
-# 	name VARCHAR(100),
-# 	poster VARCHAR(255),
-# 	rating FLOAT,
-# 	summary VARchAR(500),
-# 	trailer VARCHAR(255)
-# )
-
-
-# schema for the table
-# constructor we are using is from "db.Model"
-class Movie(db.Model):
-    __tablename__ = "movies"
-    # automatically creates and assigns value
-    # increased performance if you do not do calculations to update id by max id on the python side
-    # if autoincremented on the SQL side it will not have a decrease in preformance as it will remember the last value and update easily
-    # increased security as it is more difficult for people to guess "id" values
-    # easier to merge two tables as their id primary keys will not be the same/consist of duplicates
-    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(50))
-    poster = db.Column(db.String(50))
-    rating = db.Column(db.Float(50))
-    summary = db.Column(db.String(50))
-    trailer = db.Column(db.String(50))
-
-    # JSON - Keys (can change names sent to front-end)
-    # class method
-    # dict is also easier to convert to JSON
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "poster": self.poster,
-            "rating": self.rating,
-            "summary": self.summary,
-            "trailer": self.trailer,
-        }
-
-
-class User(db.Model):
-    __tablename__ = "users"
-    # automatically creates and assigns value
-    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
-    # make unique
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-
-    # JSON - Keys (can change names sent to front-end)
-    # class method
-    # dict is also easier to convert to JSON
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "username": self.username,
-            "password": self.password,
-        }
 
 
 # to test connection

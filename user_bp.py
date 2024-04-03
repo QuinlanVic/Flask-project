@@ -2,7 +2,9 @@ from flask import Blueprint, render_template
 
 from flask_wtf import FlaskForm
 
-from app import User, db
+from extensions import db
+
+from models.user import User
 
 user_bp = Blueprint("user", __name__)
 

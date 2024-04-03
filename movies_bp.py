@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 
-from app import Movie, db
+from extensions import db
+
+# from folder.filename import Model
+from models.movie import Movie
 
 # THESE ARE FOR JSON REQUESTS BY FRONT-END DEVELOPERS
 

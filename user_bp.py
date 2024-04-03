@@ -1,3 +1,144 @@
+from flask import Blueprint, render_template
+
+from flask_wtf import FlaskForm
+
+from app import User, db
+
+user_bp = Blueprint("user", __name__)
+
+
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import InputRequired, Length, ValidationError
+
+
+# registration validation
+class RegistrationForm(FlaskForm):
+    username = StringField("Username", validators=[InputRequired(), Length(min=6)])
+    password = PasswordField(
+        "Password", validators=[InputRequired(), Length(min=8, max=12)]
+    )
+    submit = SubmitField("Sign Up")
+
+    # use WTF to send user back to registration page if input is invalid
+    # automatically runs when the "form.validate_on_submit()" function executes
+    # class method (instance and data from user form via field)
+    # validate = function name and then "_" then the field name
+    def validate_username(self, field):
+        # inform WTF that there is an error and display it
+        print("Validate username was called (reg)", field.data)
+        specific_user = User.query.filter_by(username=field.data).first()
+        # print(specific_user)
+
+        # if it does exist then user cannot sign up and send them back to register page
+        if specific_user:
+            # the message below is displayed in the "div" in the register form
+            raise ValidationError("Username taken")
+
+
+# login validation
+class LoginForm(FlaskForm):
+    username = StringField("Username", validators=[InputRequired()])
+    password = PasswordField("Password", validators=[InputRequired()])
+    submit = SubmitField("Login")
+
+    # validate = function name and then "_" then the field name
+    def validate_username(self, field):
+        # inform WTF that there is an error and display it
+        print("Validate username was called (log)", field.data)
+        specific_user = User.query.filter_by(username=field.data).first()
+        # print(specific_user)
+
+        # if it does not exist then user cannot log in and we send them back to getin page
+        if not specific_user:
+            # the message below is displayed in the "div" in the register form
+            raise ValidationError("Username or password invalid")
+
+    # Validate for login form
+    def validate_password(self, field):
+        # access username via self
+        user = User.query.filter_by(username=self.username.data).first()
+        if user:
+            if user.password != field.data:
+                raise ValidationError("Username or password is invalid")
+
+
+# GET - Issue token
+# POST - Verify token
+# new route for register page
+@user_bp.route("/getin", methods=["GET", "POST"])  # HOF
+def getin_page():
+    # GET & POST
+    # create a new form object
+    form = LoginForm()
+
+    # only on POST (when user is registering)
+    if form.validate_on_submit():
+        # check if username is already in database
+        # specific_user = User.query.get(form.username.data)
+        # specific_user = db.session.query(User).filter(
+        #     User.username == (form.username.data)
+        # )
+        # or
+        specific_user = User.query.filter_by(username=form.username.data).first()
+        print(specific_user)
+
+        # if it does not exist then user cannot sign up and send them back to register page
+        if not specific_user or specific_user.password != form.password.data:
+            # flash("Invalid username or password", "danger")
+            return render_template("getin.html", form=form)
+        # otherwise user has logged in successfully
+        return f"<h1>Welcome back, {form.username.data}"
+
+    # only on GET
+    # then use it in register page
+    return render_template("getin.html", form=form)
+
+
+# GET - Issue token
+# POST - Verify token
+# new route for register page
+@user_bp.route("/register", methods=["GET", "POST"])  # HOF
+def register_page():
+    # GET & POST
+    # create a new form object
+    form = RegistrationForm()
+
+    # only on POST (when user is registering)
+    if form.validate_on_submit():
+        # check if username is already in database
+        # specific_user = User.query.get(form.username.data)
+        # specific_user = db.session.query(User).filter(
+        #     User.username == (form.username.data)
+        # )
+        # or
+        specific_user = User.query.filter_by(username=form.username.data).first()
+        print(specific_user)
+
+        # if it does exist then user cannot sign up and send them back to register page
+        if specific_user:
+            return render_template("register.html", form=form)
+        # otherwise create a new user entry
+        # print(form.username.data, form.password.data)
+        # add registered users to the database
+        new_user = User(
+            username=form.username.data, password=form.password.data
+        )  # id should be auto-created
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            # print("Profile page", username, password)
+            return "<h1> Registration successful </h1>", 201
+        # now send them to new profile page
+        # return render_template("profile.html", new_user.to_dict())
+        except Exception as e:
+            db.session.rollback()  # undo the change (unless committed already)
+            return f"<h1>An error occured: {str(e)}", 500
+
+    # only on GET
+    # then use it in register page
+    return render_template("register.html", form=form)
+
+
 # *********** OLD USER CRUD OPERATIONS WITH DB ********************
 # # log a user in
 # @app.route("/user", methods=["POST"])  # HOF

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, url_for, request, abort, flash
 
 from flask_wtf import FlaskForm
 
@@ -6,11 +6,15 @@ from extensions import db
 
 from models.user import User
 
+# from django.utils.http import url_has_allowed_host_and_scheme
+
 user_bp = Blueprint("user", __name__)
 
 
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
+
+from flask_login import login_user, logout_user, login_required
 
 
 # registration validation
@@ -50,7 +54,7 @@ class LoginForm(FlaskForm):
         specific_user = User.query.filter_by(username=field.data).first()
         # print(specific_user)
 
-        # if it does not exist then user cannot log in and we send them back to getin page
+        # if it does not exist then user cannot log in and we send them back to login page
         if not specific_user:
             # the message below is displayed in the "div" in the register form
             raise ValidationError("Username or password invalid")
@@ -66,9 +70,9 @@ class LoginForm(FlaskForm):
 
 # GET - Issue token
 # POST - Verify token
-# new route for register page
-@user_bp.route("/getin", methods=["GET", "POST"])  # HOF
-def getin_page():
+# new route for login page
+@user_bp.route("/login", methods=["GET", "POST"])  # HOF
+def login_page():
     # GET & POST
     # create a new form object
     form = LoginForm()
@@ -76,24 +80,31 @@ def getin_page():
     # only on POST (when user is registering)
     if form.validate_on_submit():
         # check if username is already in database
-        # specific_user = User.query.get(form.username.data)
-        # specific_user = db.session.query(User).filter(
-        #     User.username == (form.username.data)
-        # )
-        # or
         specific_user = User.query.filter_by(username=form.username.data).first()
+        # test if correct user
         print(specific_user)
 
         # if it does not exist then user cannot sign up and send them back to register page
         if not specific_user or specific_user.password != form.password.data:
             # flash("Invalid username or password", "danger")
-            return render_template("getin.html", form=form)
+            return render_template("login.html", form=form)
+
         # otherwise user has logged in successfully
-        return f"<h1>Welcome back, {form.username.data}"
+        # token is issued - cookies stored in the browser
+        login_user(specific_user)
+        flash("You have been successfully logged in " + f"{specific_user.username} :)")
+        next = request.args.get("next")
+        # url_has_allowed_host_and_scheme should check if the url is safe
+        # for redirects, meaning it matches the request host.
+        # if not url_has_allowed_host_and_scheme(next, request.host):
+        #     return abort(400)
+
+        # return f"<h1>Welcome back, {form.username.data}"
+        return redirect(next or url_for("movieslist.movie_list_page"))
 
     # only on GET
     # then use it in register page
-    return render_template("getin.html", form=form)
+    return render_template("login.html", form=form)
 
 
 # GET - Issue token
@@ -129,7 +140,18 @@ def register_page():
             db.session.add(new_user)
             db.session.commit()
             # print("Profile page", username, password)
-            return "<h1> Registration successful </h1>", 201
+            # otherwise user has logged in successfully
+            login_user(new_user)
+            flash("<h1>You have been successfully logged in</h1")
+            next = request.args.get("next")
+            # url_has_allowed_host_and_scheme should check if the url is safe
+            # for redirects, meaning it matches the request host.
+            # if not url_has_allowed_host_and_scheme(next, request.host):
+            #     return abort(400)
+
+            # return f"<h1>Welcome back, {form.username.data}"
+            return redirect(next or url_for("movieslist.movie_list_page"))
+            # return "<h1> Registration successful </h1>", 201
         # now send them to new profile page
         # return render_template("profile.html", new_user.to_dict())
         except Exception as e:
@@ -139,6 +161,13 @@ def register_page():
     # only on GET
     # then use it in register page
     return render_template("register.html", form=form)
+
+
+@user_bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("movieslist.movie_list_page"))
 
 
 # *********** OLD USER CRUD OPERATIONS WITH DB ********************

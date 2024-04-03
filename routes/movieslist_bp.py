@@ -47,7 +47,7 @@ def update_movie_page():
 
 
 # movies list
-@movieslist_bp.route("/")
+@movieslist_bp.route("/", methods=["GET", "POST"])
 def movie_list_page():
     movie_list = Movie.query.all()  # SELECT * FROM movies | movie_list iterator
     # print(type(movie_list)) # list
@@ -95,7 +95,7 @@ def delete_movie_by_id():
 
 
 # ADD MOVIE TO SQL DATABASE NOW NOT LOCAL
-@movieslist_bp.route("/", methods=["POST"])
+@movieslist_bp.route("/add/db", methods=["POST"])
 def new_movie_list():
     movie_name = request.form.get("name")
     movie_poster = request.form.get("poster")

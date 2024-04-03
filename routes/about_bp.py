@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from flask_login import login_required
 
 users = [
     {
@@ -26,12 +27,14 @@ about_bp = Blueprint("about", __name__)
 
 # /about page
 @about_bp.route("/")
+@login_required
 def about_page():
     return render_template("about.html", users=users)
 
 
 # specific user version of file
 @about_bp.route("/<id>")
+@login_required
 def user_page(id):
     specific_user = [user for user in users if user["id"] == id]
     return render_template("about.html", users=specific_user)

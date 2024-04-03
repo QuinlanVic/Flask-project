@@ -2,8 +2,11 @@ from extensions import db
 
 import uuid
 
+from flask_login import UserMixin
 
-class User(db.Model):
+
+# this ensures that the User class comes with all the default methods
+class User(UserMixin, db.Model):
     __tablename__ = "users"
     # automatically creates and assigns value
     id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))

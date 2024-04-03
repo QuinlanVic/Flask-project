@@ -1,12 +1,17 @@
 from flask import Flask
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
-
 import os
 from dotenv import load_dotenv
 
 from extensions import db
+
+from models.user import User
+
+from flask_login import LoginManager
+
+login_manager = LoginManager()
+
 
 # All to keep away private passwords and stuff away from the public via
 # puts variables in .env file into windows environmental variables
@@ -16,6 +21,7 @@ load_dotenv()  # load -> os env (environmental variables)
 
 # create an instance of the 'Flask' class
 app = Flask(__name__)
+
 
 # secret so we have to provide it in the ".env" file
 app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # token
@@ -38,6 +44,7 @@ db.init_app(app)
 # no raw sql -> autocomplete functions (.get(), .all(), .filterby()) (NOT "SELECT * movies..." in string format, it's an abstraction of that)
 # allows us to manipulate easier to work with datatypes (NOT query strings like above)
 
+login_manager.init_app(app)
 
 # to test connection
 try:
@@ -51,6 +58,7 @@ try:
         # db.create_all()  # easier way to create tables through python after connecting
 except Exception as e:
     print("Error connecting to the database:", e)
+
 
 # have to have import here because by now the db would have been created and movies_bp can import it from app
 from routes.movies_bp import movies_bp
@@ -90,6 +98,11 @@ from routes.user_bp import user_bp
 # registering "user_bp.py" as a blueprint
 # view (Python fullstack) -> actually implementing through forms and stuff
 app.register_blueprint(user_bp)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
 
 
 # store tokens in browser (local storage or cookies) (gets given after signing up/logging in)

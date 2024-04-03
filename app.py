@@ -1,18 +1,12 @@
-from flask import Flask, jsonify, request, render_template, flash
+from flask import Flask
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 
 import os
 from dotenv import load_dotenv
-from pprint import pprint
-import uuid
 
 from extensions import db
-
-from flask_wtf import FlaskForm
-
-import json
 
 # All to keep away private passwords and stuff away from the public via
 # puts variables in .env file into windows environmental variables
@@ -59,14 +53,14 @@ except Exception as e:
     print("Error connecting to the database:", e)
 
 # have to have import here because by now the db would have been created and movies_bp can import it from app
-from movies_bp import movies_bp
+from routes.movies_bp import movies_bp
 
 # registering "movies_bp.py" as a blueprint and add a prefix for the url
 # JSON (For front-end people)
 app.register_blueprint(movies_bp, url_prefix="/movies")
 
 # have to have import here because by now the db would have been created and movies_bp can import it from app
-from movieslist_bp import movieslist_bp
+from routes.movieslist_bp import movieslist_bp
 
 # registering "movieslist_bp.py" as a blueprint and add a prefix for the url
 # view (Python fullstack) -> actually implementing through forms and stuff
@@ -77,21 +71,21 @@ app.register_blueprint(movieslist_bp, url_prefix="/movieslist")
 
 
 # have to have import here because by now the db would have been created and movies_bp can import it from app
-from main_bp import main_bp
+from routes.main_bp import main_bp
 
 # registering "main_bp.py" as a blueprint
 # view (Python fullstack) -> actually implementing through forms and stuff
 app.register_blueprint(main_bp)
 
 
-from about_bp import about_bp
+from routes.about_bp import about_bp
 
 
 # registering "about_bp.py" as a blueprint and add a prefix for the url
 app.register_blueprint(about_bp, url_prefix="/about")
 
 
-from user_bp import user_bp
+from routes.user_bp import user_bp
 
 # registering "user_bp.py" as a blueprint
 # view (Python fullstack) -> actually implementing through forms and stuff
@@ -100,3 +94,10 @@ app.register_blueprint(user_bp)
 
 # store tokens in browser (local storage or cookies) (gets given after signing up/logging in)
 # no token, no data
+
+# Process & Scalable
+# E.g.) Add Account
+# 1. Model
+# 2. Route
+# 3. app.py
+# 4. Template

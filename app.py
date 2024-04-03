@@ -114,3 +114,17 @@ def load_user(user_id):
 # 2. Route
 # 3. app.py
 # 4. Template
+
+
+# from flask_sqlalchemy import SQLAlchemy
+# from sqlalchemy.engine import URL
+
+# server = 'localhost'
+# database = 'YourDatabaseName'
+# username = 'YourUsername'
+# password = 'YourPassword'
+# driver_name = "ODBC Driver 17 for SQL Server"
+# connection_string = f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver={driver_name}"
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
+# db = SQLAlchemy(app)

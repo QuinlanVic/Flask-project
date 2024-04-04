@@ -6,6 +6,8 @@ from extensions import db
 
 from models.user import User
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 # from django.utils.http import url_has_allowed_host_and_scheme
 
 user_bp = Blueprint("user", __name__)
@@ -133,8 +135,11 @@ def register_page():
         # otherwise create a new user entry
         # print(form.username.data, form.password.data)
         # add registered users to the database
+        password_hash = generate_password_hash(form.password.data)
+        print(form.password.data, password_hash)
         new_user = User(
-            username=form.username.data, password=form.password.data
+            username=form.username.data,
+            password=password_hash,
         )  # id should be auto-created
         try:
             db.session.add(new_user)

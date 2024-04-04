@@ -103,6 +103,7 @@ try:
         # only use create all once and then comment out again so it doesn't try to create tables with each restart of the server
         # it won't cause an error as it only adds if it doesn't exist
         # but always keep it there when in production (for updates)
+        # drop then recreate to implement changes
         # db.drop_all()
         # db.create_all()  # easier way to create tables through python after connecting
 except Exception as e:

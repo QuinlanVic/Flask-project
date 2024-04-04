@@ -1,14 +1,14 @@
 
 1. Create Database
-use db
-show dbs
-
-use bs3awe
-show collections
-use quinlansanlam 
+use db (if not created, it will create one)
+show dbs (shows you which db you are wrking with)
+Practical example:
+use bs3awe (switches to a particular database)
+show collections (shows "tables" in db)
+use quinlansanlam (switches to a particular database)
 
 add a bunch of movies = INSERT INTO MOVIES VALUES ("Vikram", "https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg", 8.4, "Members of a black ops team must track and eliminate a gang of masked murderers.")
-2. Create collection 
+2. Create collection (table with rows)
 ```js
 db.movies.insertMany(data, options)
 db.movies.insertMany([
@@ -112,9 +112,9 @@ db.collection.find({
 })
 ```
 
-ALL OPERATORS START WITH A "$"
+### ALL OPERATORS START WITH A "$"
 
-6. find movies with rating greater than 8
+6. Find movies with rating greater than 8
 ```js
 db.collection.find({
   rating: {
@@ -123,7 +123,7 @@ db.collection.find({
 })
 ```
 
-7. find movies with rating less than 8
+7. Find movies with rating less than 8
 ```js
 db.collection.find({
   rating: {
@@ -132,7 +132,7 @@ db.collection.find({
 })
 ```
 
-8. find movies with rating greater than or equal to 8
+8. Find movies with rating greater than or equal to 8
 ```js
 db.collection.find({
   rating: {
@@ -141,7 +141,7 @@ db.collection.find({
 })
 ```
 
-9. find movies with rating less than or equal to 8
+9. Find movies with rating less than or equal to 8
 ```js
 db.collection.find({
   rating: {
@@ -150,7 +150,7 @@ db.collection.find({
 })
 ```
 
-All movies with the rating of 8.4, 7, 8.1 = SELECT * FROM MOVIES WHERE rating in (8.4, 7, 8.1)
+10. All movies with the rating of 8.4, 7, 8.1 = SELECT * FROM MOVIES WHERE rating in (8.4, 7, 8.1)
 ```js
 db.collection.find({
   "$or": [
@@ -179,7 +179,7 @@ db.collection.find({
   }
 })
 ```
-NEGATIVE OF ABOVE
+10.1 NEGATIVE OF ABOVE
 ```js
 db.collection.find({
   "rating": {
@@ -190,4 +190,99 @@ db.collection.find({
     ]
   }
 })
+```
+
+### Projections
+SELECT name, rating FROM movie 
+INCLUSION = 1
+```js
+db.movie.find({}, {name: 1, rating: 1})
+```
+
+SELECT * EXCEPT(summary, trailer) FROM Movie
+EXCLUSION = 0
+```js
+db.movie.find({}, {summary: 0, trailer: 0})
+```
+
+SELECT name, rating FROM movie WHERE rating > 8.5 =
+Movies with a rating greater than 5, only name and rating column (also exclude default _idx)
+```js
+db.movie.find({rating: {$gt: 8.5}}, {_id: 0, name: 1, rating: 1})
+```
+
+### Sorting
+Ascending sort
+```js
+db.movie.find({}).sort({rating: 1})
+```
+
+Descending sort
+```js
+db.movie.find({}).sort({rating: -1})
+```
+
+Projection and sort desc rating
+```js
+db.movie.find({}, {_id: 0, name: 1, rating: 1}).sort({rating: -1})
+```
+
+Projection and sorting by 2 things (Compound sorting)
+```js
+db.movie.find({}, {_id: 0, name: 1, rating: 1}).sort({rating: -1, name: -1})
+```
+
+### Top 3 - Limit
+```js
+db.movie.find({}, {_id: 0, name: 1, rating: 1}).sort({rating: -1, name: -1}).limit(3)
+```
+
+### Skip - Skip (Equivalent to offset in SQL)
+4, 5, 6
+```js
+db.movie.find({}, {_id: 0, name: 1, rating: 1}).sort({rating: -1, name: -1}).limit(3).skip(3)
+```
+# Steps to use
+use quinsanlam (DATABASE)
+## Now to create a collection with documents do below
+```js
+db.orders.insertMany(
+[
+{ _id: 0, productName: "Steel beam", status: "new", quantity: 10 },
+{ _id: 1, productName: "Steel beam", status: "urgent", quantity: 20 },
+{ _id: 2, productName: "Steel beam", status: "urgent", quantity: 30 },
+{ _id: 3, productName: "Iron rod", status: "new", quantity: 15 },
+{ _id: 4, productName: "Iron rod", status: "urgent", quantity: 50 },
+{ _id: 5, productName: "Iron rod", status: "urgent", quantity: 10 }
+]
+)
+```
+#### Get product names and the total quanity that must be shipped urgently
+#### Example output = [{ _id: "Steel Beam", totalQuantity: 50}, { _id: "Iron rod", totalQuantity: 60}]
+SELECT productName as _id, SUM(quantity) AS totalQuantity FROM orders WHERE status = "urgent" GROUP BY productName
+
+### Aggregate functions
+```js
+// multiple stages in the aggregate function
+db.orders.aggregate([
+  // stage 1 = only get docs that are urgent
+  { $match: { status: "urgent"} }, 
+  // stage 2
+  { 
+    $group: { _id: "$productName", totalUrgentQuantity: { $sum: "$quantity"}} 
+    // group by productname but save the column name as "_id" and get total quantity but save the column name as "quanitity'" (have to use dollar signs before column names to access values inside of the columns)
+  }
+  // stage 3
+])
+```
+
+-- Sub-Query
+-- 1. Write a query to display all the orders from the orders table issued by the salesman 'Paul Adam'.
+```js
+SELECT * FROM salesorders WHERE salesorders.salesman_id = (SELECT salesman_id FROM salesman WHERE salesman.name = 'Paul Adam')
+```
+
+-- 2. Write a query to display all the orders which values are greater than the average order value for 10th October 2012.
+```js
+SELECT * FROM salesorders WHERE purch_amt > (SELECT AVG(purch_amt) FROM salesorders WHERE ord_date = '2012-10-10') 
 ```

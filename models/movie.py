@@ -28,11 +28,11 @@ class Movie(db.Model):
     # increased security as it is more difficult for people to guess "id" values
     # easier to merge two tables as their id primary keys will not be the same/consist of duplicates
     id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(50))
-    poster = db.Column(db.String(50))
-    rating = db.Column(db.Float(50))
-    summary = db.Column(db.String(50))
-    trailer = db.Column(db.String(50))
+    name = db.Column(db.String(100))
+    poster = db.Column(db.String(255))
+    rating = db.Column(db.Float)
+    summary = db.Column(db.String(500))
+    trailer = db.Column(db.String(255))
 
     # JSON - Keys (can change names sent to front-end)
     # class method

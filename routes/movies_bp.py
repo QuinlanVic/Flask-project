@@ -88,6 +88,7 @@ def get_specific_movie(id):
 def create_movie():
     # get new movie JSON data from body in request
     data = request.json
+    print(data)
     # create a new movie with it, noo id as it is automatically created and asigned
     new_movie = Movie(
         name=data["name"],

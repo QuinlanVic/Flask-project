@@ -31,7 +31,9 @@ app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # token
 
 # connect to our azure
 # change connection string when working with different databases
-connection_string = os.environ.get("AZURE_DATABASE_URL")
+# connection_string = os.environ.get("AZURE_DATABASE_URL")
+# connect to local server
+connection_string = os.environ.get("LOCAL_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
 
 db.init_app(app)
@@ -45,19 +47,6 @@ db.init_app(app)
 # allows us to manipulate easier to work with datatypes (NOT query strings like above)
 
 login_manager.init_app(app)
-
-# to test connection
-try:
-    with app.app_context():
-        # Use text() to explicitly declare your SQL command
-        result = db.session.execute(text("SELECT 1")).fetchall()
-        print("Connection successful:", result)
-        # only use create all once and then comment out again so it doesn't try to create tables with each restart of the server
-        # it won't cause an error as it only adds if it doesn't exist
-        # but always keep it there when in production (for updates)
-        # db.create_all()  # easier way to create tables through python after connecting
-except Exception as e:
-    print("Error connecting to the database:", e)
 
 
 # have to have import here because by now the db would have been created and movies_bp can import it from app
@@ -105,6 +94,21 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
+# to test connection and create tables initially
+try:
+    with app.app_context():
+        # Use text() to explicitly declare your SQL command
+        result = db.session.execute(text("SELECT 1")).fetchall()
+        print("Connection successful:", result)
+        # only use create all once and then comment out again so it doesn't try to create tables with each restart of the server
+        # it won't cause an error as it only adds if it doesn't exist
+        # but always keep it there when in production (for updates)
+        # db.drop_all()
+        # db.create_all()  # easier way to create tables through python after connecting
+except Exception as e:
+    print("Error connecting to the database:", e)
+
+
 # store tokens in browser (local storage or cookies) (gets given after signing up/logging in)
 # no token, no data
 
@@ -125,6 +129,7 @@ def load_user(user_id):
 # password = 'YourPassword'
 # driver_name = "ODBC Driver 17 for SQL Server"
 # connection_string = f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver={driver_name}"
-
+# mssql+pyodbc://@<server_name>/<db_name>?driver=<driver_name>
+# connection_string = "mssql+pyodbc://@PF30NAFQ\SQLEXPRESS/moviesdb?driver=ODBC+Driver+17+for+SQL+Server"
 # app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
 # db = SQLAlchemy(app)

@@ -2,11 +2,13 @@
 1. Create Database
 use db
 show dbs
+
 use bs3awe
 show collections
 use quinlansanlam 
 
 add a bunch of movies = INSERT INTO MOVIES VALUES ("Vikram", "https://m.media-amazon.com/images/M/MV5BMmJhYTYxMGEtNjQ5NS00MWZiLWEwN2ItYjJmMWE2YTU1YWYxXkEyXkFqcGdeQXVyMTEzNzg0Mjkx._V1_.jpg", 8.4, "Members of a black ops team must track and eliminate a gang of masked murderers.")
+2. Create collection 
 ```js
 db.movies.insertMany(data, options)
 db.movies.insertMany([
@@ -79,20 +81,21 @@ db.movies.insertMany([
 ]
 )
 ```
-
+3. Read the data
 Find all movies = SELECT * FROM MOVIES
 ```js
 db.movies.find()
 ```
 
-
+4. Filter the data
 find movies with id = 100 = SELECT * FROM MOVIES WHERE id = 100
 ```js
 db.collection.find({
   "id": "100"
 })
 ```
-
+### Comparison operators
+5. Movings with rating of 8
 find movies with rating = 8 = SELECT * FROM MOVIES WHERE rating = 8
 ```js
 db.collection.find({
@@ -100,10 +103,18 @@ db.collection.find({
     8
 })
 ```
+5.1 Negative of above 
+```js
+db.collection.find({
+  rating: {
+    $ne: 8
+  }
+})
+```
 
 ALL OPERATORS START WITH A "$"
 
-find movies with rating greater than 8
+6. find movies with rating greater than 8
 ```js
 db.collection.find({
   rating: {
@@ -112,7 +123,7 @@ db.collection.find({
 })
 ```
 
-find movies with rating less than 8
+7. find movies with rating less than 8
 ```js
 db.collection.find({
   rating: {
@@ -121,7 +132,7 @@ db.collection.find({
 })
 ```
 
-find movies with rating greater than or equal to 8
+8. find movies with rating greater than or equal to 8
 ```js
 db.collection.find({
   rating: {
@@ -130,7 +141,7 @@ db.collection.find({
 })
 ```
 
-find movies with rating less than or equal to 8
+9. find movies with rating less than or equal to 8
 ```js
 db.collection.find({
   rating: {

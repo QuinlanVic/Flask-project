@@ -66,7 +66,7 @@ class LoginForm(FlaskForm):
         # access username via self
         user = User.query.filter_by(username=self.username.data).first()
         if user:
-            if user.password != field.data:
+            if not check_password_hash(user.password, field.data):
                 raise ValidationError("Username or password is invalid")
 
 
@@ -87,7 +87,7 @@ def login_page():
         print(specific_user)
 
         # if it does not exist then user cannot sign up and send them back to register page
-        if not specific_user or specific_user.password != form.password.data:
+        if not specific_user:
             # flash("Invalid username or password", "danger")
             return render_template("login.html", form=form)
 

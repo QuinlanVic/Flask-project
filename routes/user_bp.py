@@ -86,7 +86,7 @@ def login_page():
         # test if correct user
         print(specific_user)
 
-        # if it does not exist then user cannot sign up and send them back to register page
+        # if it does not exist then user cannot login and send them back to login page
         if not specific_user:
             # flash("Invalid username or password", "danger")
             return render_template("login.html", form=form)
@@ -100,12 +100,11 @@ def login_page():
         # for redirects, meaning it matches the request host.
         # if not url_has_allowed_host_and_scheme(next, request.host):
         #     return abort(400)
-
         # return f"<h1>Welcome back, {form.username.data}"
         return redirect(next or url_for("movieslist.movie_list_page"))
 
     # only on GET
-    # then use it in register page
+    # then use it in login page
     return render_template("login.html", form=form)
 
 

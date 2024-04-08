@@ -31,9 +31,9 @@ app.config["SECRET_KEY"] = os.environ.get("FORM_SECRET_KEY")  # token
 
 # connect to our azure
 # change connection string when working with different databases
-# connection_string = os.environ.get("AZURE_DATABASE_URL")
+connection_string = os.environ.get("AZURE_DATABASE_URL")
 # connect to local server
-connection_string = os.environ.get("LOCAL_DATABASE_URL")
+# connection_string = os.environ.get("LOCAL_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
 
 db.init_app(app)

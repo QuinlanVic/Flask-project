@@ -45,7 +45,7 @@ CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
 # then another thing we did was start with lucid chart so make sure you have an account and can start diagramming
 
 # idk if you gnna do the test still but lemme know if you want anything from that
-# [04/08, 07:57] Alex Lazarus: create DockerFile
+
 # pip install gunicorn
 # pip freeze > requirements.txt
 # go to render website

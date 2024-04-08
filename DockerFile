@@ -42,14 +42,10 @@ CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
 
 # then click on new web service and you need to deploy the movies thing we worked on
 
-# then another thing we did was start with lucid chart so make sure you have an account and can start diagramming
-
-# idk if you gnna do the test still but lemme know if you want anything from that
-
 # pip install gunicorn
 # pip freeze > requirements.txt
 # go to render website
 # use azure database url for render
-# [04/08, 07:58] Alex Lazarus: take note of this message first before doing the lomg message steps 
 
-# make sure you are using the azure database url and not local for the app you are deploying
+# DOCKER creates a virtual OS, now you will not face the issue of your deployment production not working with the local version
+# copies the OS from docker and uses it in deployment

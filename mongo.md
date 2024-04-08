@@ -259,7 +259,7 @@ db.orders.insertMany(
 ```
 #### Get product names and the total quanity that must be shipped urgently
 #### Example output = [{ _id: "Steel Beam", totalQuantity: 50}, { _id: "Iron rod", totalQuantity: 60}]
-SELECT productName as _id, SUM(quantity) AS totalQuantity FROM orders WHERE status = "urgent" GROUP BY productName
+SELECT productName as _id, SUM(quantity) AS totalUrgentQuantity FROM orders WHERE status = "urgent" GROUP BY productName
 
 ### Aggregate functions
 ```js
@@ -267,10 +267,9 @@ SELECT productName as _id, SUM(quantity) AS totalQuantity FROM orders WHERE stat
 db.orders.aggregate([
   // stage 1 = only get docs that are urgent
   { $match: { status: "urgent"} }, 
-  // stage 2
+  // stage 2 = group by productname but save the column name as "_id" and get total quantity but save the column name as "totalUrgentQuantity'" (have to use dollar signs before column names to access values inside of the columns)
   { 
     $group: { _id: "$productName", totalUrgentQuantity: { $sum: "$quantity"}} 
-    // group by productname but save the column name as "_id" and get total quantity but save the column name as "quanitity'" (have to use dollar signs before column names to access values inside of the columns)
   }
   // stage 3
 ])
@@ -285,4 +284,10 @@ SELECT * FROM salesorders WHERE salesorders.salesman_id = (SELECT salesman_id FR
 -- 2. Write a query to display all the orders which values are greater than the average order value for 10th October 2012.
 ```js
 SELECT * FROM salesorders WHERE purch_amt > (SELECT AVG(purch_amt) FROM salesorders WHERE ord_date = '2012-10-10') 
+```
+
+
+COUNT tings
+```js
+db.movies.find({}).count();
 ```
